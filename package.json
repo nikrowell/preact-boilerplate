@@ -1,0 +1,18 @@
+{
+  "name": "preact-boilerplate",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "preact": "~8.3.0",
+    "unistore": "~3.0.6"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-preact": "^1.1.0",
+    "node-sass": "^4.9.3",
+    "parcel-bundler": "^1.9.7"
+  }
+}
