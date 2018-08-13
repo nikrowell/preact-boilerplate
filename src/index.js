@@ -1,4 +1,4 @@
-import { Component, render, h } from 'preact';
+import { Component, render, cloneElement, h } from 'preact';
 import { Route, Link } from './router';
 import '../scss/index.scss';
 
@@ -32,41 +32,48 @@ class Project extends Component {
   }
 }
 
+
+
+import { isFunction } from './utils';
+
+
 class Transition extends Component {
 
   constructor(props) {
     super(props);
-    const children = this.getChildMapping(this.props.children);
-    this.state = {children};
-    this.incoming = [];
-    this.outgoing = [];
+    const mapping = this.getChildMapping(this.props.children);
+    this.state = {mapping};
+    this.entering = {};
+    // this.leaving = {};
+    this.refs = {};
   }
 
-  getChildMapping(children) {
-    return children.reduce((result, child) => {
-      const key = child.key;
-      result[key] = child;
-      return result;
-    }, {});
-  }
-
-  animateIn() {
-
-  }
-
-  animateOut() {
-
+  componentDidMount() {
+    const mapping = this.state.mapping;
+    for (let key in mapping) this.animateIn(key);
   }
 
   componentWillReceiveProps(nextProps) {
-    const children = Object.assign({}, this.state.children, this.getChildMapping(nextProps.children));
-    this.setState({children});
+
+    const prevChildren = this.state.children;
+    const nextChildren = this.getChildMapping(nextProps.children);
+    const mapping = Object.assign({}, prevChildren, nextChildren);
+
+    this.setState({mapping});
+
+    for (let key in prevChildren) {
+      // this.outgoing.push(key);
+    }
+
+    for (let key in nextChildren) {
+      // this.incoming.push(key);
+    }
   }
 
   componentDidUpdate() {
 
-    const incoming = this.incoming;
-    const outgoing = this.outgoing;
+    // const incoming = this.incoming;
+    // const outgoing = this.outgoing;
 
     switch (this.props.mode) {
       case 'in-out':
@@ -82,15 +89,64 @@ class Transition extends Component {
     }
   }
 
+  getChildMapping(children) {
+    return children.reduce((result, child) => {
+      const key = child.key;
+      result[key] = child;
+      return result;
+    }, {});
+  }
+
+  animateIn(key) {
+    const component = this.refs[key];
+    if (isFunction(component.animateIn)) {
+      this.entering[key] = true;
+      component.animateIn(() => delete this.entering[key]);
+    }
+  }
+
+  animateOut(key) {
+    console.log('animateOut', key);
+  }
+
   render() {
+
+    const mapping = this.state.mapping;
+    const children = Object.keys(mapping).map(key => {
+      return cloneElement(mapping[key], {ref: el => this.refs[key] = el});
+    });
+
     return (
       <div>
+        {children}
         {debug(this.props.mode)}
         {debug(this.state)}
       </div>
     );
   }
 }
+
+
+
+class Tester extends Component {
+
+  animateIn(done) {
+    const el = this.base;
+    el.style.opacity = 0;
+    el.style.transition = 'opacity 1s ease';
+    el.addEventListener('transitionend', done);
+    setTimeout(() => el.style.opacity = 1, 500);
+  }
+
+  animateOut(done) {
+    // setTimeout(done, 1000);
+  }
+
+  render() {
+    return <div>I'm a component with animateIn <strong>{this.props.children}</strong></div>
+  }
+}
+
 
 class App extends Component {
 
@@ -131,7 +187,9 @@ class App extends Component {
           <option value="out-in">out-in</option>
         </select>
         <Transition mode={this.state.mode}>
-          {items.map(n => <div key={`key-${n}`}>{n}</div>)}
+          <div key="func">func</div>
+          <Tester key="comp" />
+          {items.map(n => n > 0.5 ? <Tester key={n}>{n}</Tester> : <div key={`key-${n}`}>{n}</div>)}
         </Transition>
       </div>
     );
