@@ -1,150 +1,10 @@
 import { Component, render, h } from 'preact';
+import { Route, Link } from './router';
 import '../scss/index.scss';
 
-const instances = [];
-
-const register = (component) => {
-  instances.push(component);
-};
-
-const unregister = (component) => {
-  instances.splice(instances.indexOf(component), 1);
-};
-
-const navigate = (url, options = {}) => {
-  if (url === window.location.pathname) return;
-  window.history[options.replace ? 'replaceState' : 'pushState']({}, null, url);
-  instances.forEach(component => component.forceUpdate());
-};
-
-const isFunction = (value) => typeof value === 'function';
-
-function decode(value) {
-
-  value = decodeURIComponent(value);
-
-  if (value === 'true') {
-      value = true;
-  } else if (value === 'false') {
-      value = false;
-  } else if (value === 'null') {
-      value = null;
-  } else if (value === 'undefined') {
-      value = undefined;
-  } else if (isNaN(value) === false) {
-      value = Number(value);
-  }
-
-  return value;
-}
-
-function toRegExp(path, keys) {
-
-  if (path[0] !== '/') path = '/' + path;
-
-  path = path
-    .concat('/?')
-    .replace(/\/\(/g, '(?:/')
-    .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?|\*/g,
-
-    (match, slash, format, key, capture, optional) => {
-
-      if (match === '*') {
-        keys.push(undefined);
-        return match;
-      }
-
-      keys.push(key);
-      slash = slash || '';
-
-      return `${optional ? '' : slash}(?:${optional ? slash : ''}${format || ''}${capture || '([^/]+?)'})${optional || ''}`;
-    })
-    .replace(/([\/.])/g, '\\$1')
-    .replace(/\*/g, '(.*)');
-
-  return new RegExp('^' + path + '$', 'i');
-}
-
-class Link extends Component {
-
-  constructor(props) {
-    super(props);
-    this.onClick = this.onClick.bind(this);
-  }
-
-  onClick(event) {
-    event.preventDefault();
-    navigate(this.props.to);
-  }
-
-  render() {
-    const { to, children } = this.props;
-    return <a href={to} onClick={this.onClick}>{children}</a>;
-  }
-}
-
-class Redirect extends Component {
-
-  componentDidMount() {
-    navigate(this.props.to, {replace: true});
-  }
-
-  render() {
-    return null
-  }
-}
-
-class Route extends Component {
-
-  constructor(props) {
-    super(props);
-    this.keys = [];
-    this.regexp = toRegExp(this.props.path, this.keys);
-    this.update = this.update.bind(this);
-  }
-
-  componentWillMount() {
-    window.addEventListener('popstate', this.update);
-    register(this);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('popstate', this.update);
-    unregister(this);
-  }
-
-  update() {
-    this.setState({});
-  }
-
-  render() {
-
-    const url = window.location.pathname.split(/[?#]/)[0];
-    const matches = url.match(this.regexp);
-
-    if (!matches) {
-      return null;
-    }
-
-    const { path, view, ...props } = this.props;
-    const params = {};
-
-    matches.forEach((item, i) => {
-      const key = this.keys[i];
-      key && (params[key] = decode(matches[i + 1]));
-    });
-
-    if (Component.isPrototypeOf(view)) {
-      return h(view, { ...props, url, path, params });
-    }
-
-    if (isFunction(view)) {
-      return view({ ...props, url, path, params });
-    }
-
-    return null;
-  }
-}
+const debug = (value) => (
+  <pre>{JSON.stringify(value, null, 2)}</pre>
+);
 
 const About = (props) => (
   <div>
@@ -166,33 +26,88 @@ class Home extends Component {
 
 class Project extends Component {
   render() {
-    if (this.props.params.id === 'argosy') {
-      return <Redirect to="/" />;
-    }
     return (
       <small>{this.props.params.id}</small>
     );
   }
 }
 
-export default Home;
+class Transition extends Component {
+
+  constructor(props) {
+    super(props);
+    const children = this.getChildMapping(this.props.children);
+    this.state = {children};
+    this.incoming = [];
+    this.outgoing = [];
+  }
+
+  getChildMapping(children) {
+    return children.reduce((result, child) => {
+      const key = child.key;
+      result[key] = child;
+      return result;
+    }, {});
+  }
+
+  animateIn() {
+
+  }
+
+  animateOut() {
+
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const children = Object.assign({}, this.state.children, this.getChildMapping(nextProps.children));
+    this.setState({children});
+  }
+
+  componentDidUpdate() {
+
+    const incoming = this.incoming;
+    const outgoing = this.outgoing;
+
+    switch (this.props.mode) {
+      case 'in-out':
+        break;
+      case 'out-in':
+        break;
+      default:
+        // this.incoming = [];
+        // this.outgoing = [];
+        // incoming.forEach(this.animateIn);
+        // outgoing.forEach(this.animateOut);
+        break;
+    }
+  }
+
+  render() {
+    return (
+      <div>
+        {debug(this.props.mode)}
+        {debug(this.state)}
+      </div>
+    );
+  }
+}
 
 class App extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {items: [], mode: null};
+  }
+
   // shouldComponentUpdate(nextProps, nextState) { }
-  // componentWillReceiveProps(nextProps, nextState) {
-  //   this.props // Previous props
-  //   this.state // Previous state
-  // }
+  // componentWillReceiveProps(nextProps, nextState) { }
   // componentWillMount() { }
   // componentDidMount() { }
   // componentDidUpdate(prevProps, prevState) { }
-  // componentWillUnmount() {
-  //   this.props // Current props
-  //   this.state // Current state
-  // }
+  // componentWillUnmount() { }
 
-  render(props, { results = [] }) {
+  render() {
+    const items = this.state.items;
     return (
       <div className="site">
         <nav>
@@ -209,6 +124,15 @@ class App extends Component {
           <hr />
           <Route path="/projects/:id" view={Project} />
         </div>
+        <button onClick={e => this.setState({items: items.concat(Math.random())})}>Click Me</button>
+        <select value={this.state.mode || 'simultaneous'} onChange={e => this.setState({mode: event.target.value})}>
+          <option value="simultaneous">simultaneous</option>
+          <option value="in-out">in-out</option>
+          <option value="out-in">out-in</option>
+        </select>
+        <Transition mode={this.state.mode}>
+          {items.map(n => <div key={`key-${n}`}>{n}</div>)}
+        </Transition>
       </div>
     );
   }
