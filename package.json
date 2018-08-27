@@ -6,8 +6,8 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
-    "preact": "~8.3.0",
-    "unistore": "~3.0.6"
+    "preact": "^8.3.1",
+    "unistore": "^3.0.6"
   },
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.26.0",

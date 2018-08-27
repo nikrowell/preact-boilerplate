@@ -1,5 +1,6 @@
 import { Component, h } from 'preact';
-import { isFunction } from './utils';
+import { isFunction, isUndefined } from './utils';
+import { isObject } from 'util';
 
 const instances = [];
 
@@ -62,6 +63,24 @@ function toRegExp(path, keys) {
 
   return new RegExp('^' + path + '$', 'i');
 }
+
+const cache = {};
+
+export function match(path) {
+
+  const url = window.location.pathname.split(/[?#]/)[0];
+  let regexp;
+
+  if (cache[path]) {
+    regexp = cache[path];
+  } else {
+    const keys = [];
+    regexp = toRegExp(path, keys);
+    cache[path] = regexp;
+  }
+
+  return url.match(regexp);
+};
 
 export class Link extends Component {
 

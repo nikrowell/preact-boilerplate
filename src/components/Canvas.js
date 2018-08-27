@@ -56,19 +56,8 @@ class Canvas extends Component {
   }
 
   render() {
-
     console.log('Canvas.render');
-
-    const style = {
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      zIndex: 0,
-      left: 0,
-      top: 0
-    };
-
-    return <canvas style={style} />;
+    return <canvas className="canvas" />;
   }
 }
 
