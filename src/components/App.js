@@ -5,23 +5,33 @@ import Canvas from './Canvas';
 import store from '../store';
 
 
-// import Header from './Header';
-/* import { Component, h } from 'preact';
+
 import { connect, actions } from '../store';
 
 class Header extends Component {
 
+  constructor(props) {
+    super(props);
+    console.log('Header constructor', props);
+    this.onClick = this.onClick.bind(this);
+  }
+
+  onClick(event) {
+    this.props.increment();
+  }
+
   render() {
+    console.log('Header render', this.props);
     return (
       <header>
-        <h1>Header</h1>
-        <div>{this.props.count}</div>
+        <h1>Header: {this.props.count}</h1>
+        <button onClick={this.onClick}>Click Me</button>
       </header>
     );
   }
 }
 
-export default connect('count', actions)(Header); */
+const ConnectedHeader = connect('count', actions)(Header);
 
 /*
 import { Provider, connect } from 'unistore/preact';
@@ -138,7 +148,10 @@ class App extends Component {
 
     return (
       <div className="site">
-        {/* <Header /> */}
+        <ConnectedHeader />
+        <hr />
+        <button onClick={e => store.setState({count: store.getState().count + 1})}>Increment</button>
+        <pre>{JSON.stringify(store.getState(), null, 2)}</pre>
         <nav className="nav">
           <Link to="/">Home</Link>
           <Link to="/about">About</Link>

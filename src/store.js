@@ -6,5 +6,11 @@ const store = createStore({
   route: null
 });
 
-export { Provider, connect, store };
+const actions = store => ({
+  increment(state) {
+    return {count: state.count + 1};
+  }
+});
+
+export { Provider, connect, actions, store };
 export default store;
