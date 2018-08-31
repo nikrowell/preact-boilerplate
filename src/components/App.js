@@ -2,11 +2,12 @@ import { Component, h } from 'preact';
 import { Route, Link } from '../router';
 import Transition from '../transition';
 import Canvas from './Canvas';
+import Header from './Header';
 import store from '../store';
 
 
 
-import { connect, actions } from '../store';
+/* import { connect, actions } from '../store';
 
 class Header extends Component {
 
@@ -31,7 +32,7 @@ class Header extends Component {
   }
 }
 
-const ConnectedHeader = connect('count', actions)(Header);
+const ConnectedHeader = connect('count', actions)(Header); */
 
 /*
 import { Provider, connect } from 'unistore/preact';
@@ -119,8 +120,6 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {items: [], mode: null};
-
-    store.subscribe(state => this.forceUpdate());
   }
 
   // shouldComponentUpdate(nextProps, nextState) { }
@@ -148,7 +147,7 @@ class App extends Component {
 
     return (
       <div className="site">
-        <ConnectedHeader />
+        <Header />
         <hr />
         <button onClick={e => store.setState({count: store.getState().count + 1})}>Increment</button>
         <pre>{JSON.stringify(store.getState(), null, 2)}</pre>
