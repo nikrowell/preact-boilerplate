@@ -1,71 +1,11 @@
 import { Component, h } from 'preact';
-import { Route, Link } from '../router';
+import { Route } from '../router';
 import Transition from '../transition';
-import Canvas from './Canvas';
 import Header from './Header';
+import Footer from './Footer';
+import Canvas from './Canvas';
+import Nav from './Nav';
 import store from '../store';
-
-
-
-/* import { connect, actions } from '../store';
-
-class Header extends Component {
-
-  constructor(props) {
-    super(props);
-    console.log('Header constructor', props);
-    this.onClick = this.onClick.bind(this);
-  }
-
-  onClick(event) {
-    this.props.increment();
-  }
-
-  render() {
-    console.log('Header render', this.props);
-    return (
-      <header>
-        <h1>Header: {this.props.count}</h1>
-        <button onClick={this.onClick}>Click Me</button>
-      </header>
-    );
-  }
-}
-
-const ConnectedHeader = connect('count', actions)(Header); */
-
-/*
-import { Provider, connect } from 'unistore/preact';
-
-// If actions is a function, it gets passed the store:
-let actions = store => ({
-  // Actions can just return a state update:
-  increment(state) {
-    return { count: state.count + 1 };
-  },
-
-  // The above example as an Arrow Function:
-  increment2: ({ count }) => ({ count: count + 1 }),
-
-  // Async actions are actions that call store.setState():
-  incrementAsync(state) {
-    setTimeout(() => {
-      store.setState({ count: state.count + 1 });
-    }, 100);
-  }
-});
-
-const App = connect("count", actions)(({ count, increment }) => (
-  <div>
-    <p>Count: {count}</p>
-    <button onClick={increment}>Increment</button>
-  </div>
-));
-*/
-
-const debug = (value) => (
-  <pre>{JSON.stringify(value, null, 2)}</pre>
-);
 
 class Tester extends Component {
 
@@ -89,7 +29,7 @@ class Tester extends Component {
 const About = (props) => (
   <div>
     <h3>ABOUT</h3>
-    <pre>{JSON.stringify(props, null, 2)}</pre>
+    {debug(props)}
   </div>
 );
 
@@ -98,7 +38,7 @@ class Home extends Component {
     return (
       <div>
         <h1>Home</h1>
-        <pre>{JSON.stringify(this.props, null, 2)}</pre>
+        {debug(this.props, {color:'#F4E',fontSize:17})}
       </div>
     );
   }
@@ -108,26 +48,32 @@ class Project extends Component {
   render() {
     return (
       <div>
-        <pre>{JSON.stringify(this.props, null, 2)}</pre>
+        {debug(this.props)}
         {this.props.children}
       </div>
     );
   }
 }
 
+
+
 class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {items: [], mode: null};
+
+    this.state = {
+      content: null,
+      items: [],
+      mode: null
+    };
   }
 
-  // shouldComponentUpdate(nextProps, nextState) { }
-  // componentWillReceiveProps(nextProps, nextState) { }
-  // componentWillMount() { }
-  // componentDidMount() { }
-  // componentDidUpdate(prevProps, prevState) { }
-  // componentWillUnmount() { }
+  componentWillMount() {
+    // fetch(`${store.get('site.api')}/pages/home`)
+    //   .then(res => res.json())
+    //   .then(res => this.setState({content: res.content}));
+  }
 
   render() {
 
@@ -148,24 +94,14 @@ class App extends Component {
     return (
       <div className="site">
         <Header />
-        <hr />
-        <button onClick={e => store.setState({count: store.getState().count + 1})}>Increment</button>
-        <pre>{JSON.stringify(store.getState(), null, 2)}</pre>
-        <nav className="nav">
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-          <Link to="/projects/brew">Brew</Link>
-          <Link to="/projects/argosy">Argosy</Link>
-        </nav>
+        <Nav />
+        {debug(store.getState())}
+        <div dangerouslySetInnerHTML={{__html: this.state.content}} />
 
         <div className="content">
-          <Route path="/" view={Home} home />
-          <Route path="/about" view={About} hello="Colorado" />
-          <Route path="/projects/:id" view={props => (
-            <Project {...props}><strong>hi {props.params.id}</strong></Project>
-          )} />
-
-          {/* <Route path="/projects/:id" view={Project} /> */}
+          <Route path="/" render={Home} home />
+          <Route path="/about" render={About} hello="Colorado" />
+          <Route path="/projects/:id" render={Project} />
         </div>
 
         <hr />
@@ -189,6 +125,7 @@ class App extends Component {
           {items.map(n => n > 0.5 ? <Tester key={n}>{n}</Tester> : <div key={`key-${n}`}>{n}</div>)}
         </Transition>
 
+        <Footer />
         <Canvas />
 
       </div>

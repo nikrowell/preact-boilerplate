@@ -23,6 +23,37 @@ button {
 	z-index: 1;
 }
 
+
+@mixin ratio($width, $height) {
+  position: relative;
+  &:before {
+    content: '';
+    display: block;
+    width: 100%;
+    padding-top: ($height / $width) * 100%;
+  }
+  & > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.logo {
+  width: 180px;
+  @include ratio(200, 100);
+}
+.logo a {
+  // position: absolute;
+  // width: 100%;
+  // padding-top: 50%;
+  background-color: #BADA55;
+  text-indent: -9999px;
+}
+
+
 .nav {
   margin: 20px;
 }
@@ -42,4 +73,22 @@ button {
   z-index: 0;
   left: 0;
   top: 0;
+}
+
+
+.instafeed {
+  overflow: hidden;
+  font-size: 0;
+}
+.instafeed a {
+  width: 12.5%;
+  display: inline-block;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.instafeed a:before {
+  content: '';
+  display: block;
+  padding-top: 100%;
 }

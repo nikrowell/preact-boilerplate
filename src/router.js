@@ -1,6 +1,5 @@
 import { Component, h } from 'preact';
-import { isFunction, isUndefined } from './utils';
-import { isObject } from 'util';
+import { isFunction } from './utils';
 
 const instances = [];
 
@@ -132,7 +131,7 @@ export class Route extends Component {
       return null;
     }
 
-    const { path, view, ...props } = this.props;
+    const { path, render, ...props } = this.props;
     const params = {};
 
     matches.forEach((item, i) => {
@@ -140,12 +139,12 @@ export class Route extends Component {
       key && (params[key] = decode(matches[i + 1]));
     });
 
-    if (Component.isPrototypeOf(view)) {
-      return h(view, { ...props, url, path, params });
+    if (Component.isPrototypeOf(render)) {
+      return h(render, { ...props, url, path, params });
     }
 
-    if (isFunction(view)) {
-      return view({ ...props, url, path, params });
+    if (isFunction(render)) {
+      return render({ ...props, url, path, params });
     }
 
     return null;
