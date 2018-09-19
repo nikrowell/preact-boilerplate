@@ -1,64 +1,59 @@
-import { Component, h } from 'preact';
+import {Renderer, Geometry, Program, Mesh, Color } from 'ogl';
 
-class Canvas extends Component {
-
-  constructor(props) {
-
-    super(props);
-
-    this.state = {
-      width: null,
-      height: null,
-      mouse: null
-    };
-
-    this.ctx = null;
-    this.raf = null;
-    this.onMousemove = this.onMousemove.bind(this);
-    this.onResize = this.onResize.bind(this);
-    this.draw = this.draw.bind(this);
-  }
-
-  shouldComponentUpdate() {
-    return false;
-  }
-
-  componentDidMount() {
-    this.ctx = this.base.getContext('2d');
-    window.addEventListener('mousemove', this.onMousemove);
-    window.addEventListener('resize', this.onResize);
-    this.onResize();
-    requestAnimationFrame(this.draw);
-  }
-
-  onMousemove(event) {
-    this.setState({mouse: {
-      x: event.pageX,
-      y: event.pageY
-    }});
-  }
-
-  onResize(event) {
-    const scale = window.devicePixelRatio || 1;
-    this.base.width = window.innerWidth * scale;
-    this.base.height = window.innerHeight * scale;
-    this.ctx.scale(scale, scale);
-  }
-
-  draw(time) {
-    const ctx = this.ctx;
-    ctx.clearRect(0, 0, this.base.width, this.base.height);
-    ctx.beginPath();
-    ctx.arc(100, 100, 50, 0, Math.PI * 2);
-    ctx.fillStyle = '#F00';
-    ctx.fill();
-    this.raf = requestAnimationFrame(this.draw);
-  }
-
-  render() {
-    console.log('Canvas.render');
-    return <canvas className="canvas" />;
+export default class Canvas {
+  constructor() {
+    console.log('Canvas!');
   }
 }
 
-export default Canvas;
+const renderer = new Renderer();
+const gl = renderer.gl;
+gl.canvas.className = 'webgl';
+document.body.appendChild(gl.canvas);
+gl.clearColor(1, 1, 1, 1);
+function resize() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+window.addEventListener('resize', resize, false);
+resize();
+// Triangle that covers viewport, with UVs that still span 0 > 1 across viewport
+const geometry = new Geometry(gl, {
+    position: {size: 3, data: new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0])},
+    uv: {size: 2, data: new Float32Array([0, 0, 2, 0, 0, 2])},
+});
+const program = new Program(gl, {
+    vertexShader: `
+    precision highp float;
+    precision highp int;
+    attribute vec2 uv;
+    attribute vec3 position;
+    varying vec2 vUv;
+    void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 1.0);
+    }
+    `,
+    fragmentShader: `
+    precision highp float;
+    precision highp int;
+    uniform float uTime;
+    uniform vec3 uColor;
+    varying vec2 vUv;
+    void main() {
+        gl_FragColor.rgb = 0.5 + 0.3 * cos(vUv.xyx + uTime) + uColor;
+        gl_FragColor.a = 1.0;
+    }
+    `,
+    uniforms: {
+        uTime: {value: 0},
+        uColor: {value: new Color([0.3, 0.2, 0.5])}
+    },
+});
+const mesh = new Mesh(gl, {geometry, program});
+requestAnimationFrame(update);
+function update(t) {
+    requestAnimationFrame(update);
+    program.uniforms.uTime.value = t * 0.001;
+    // Don't need a camera if camera uniforms aren't required
+    renderer.render({scene: mesh});
+}

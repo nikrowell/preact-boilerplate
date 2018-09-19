@@ -1,13 +1,7 @@
 import { Component, cloneElement, h } from 'preact';
-import { isFunction } from './utils';
+import { isFunction } from '../utils';
 
-
-
-const debug = (value) => (
-  <pre>{JSON.stringify(value, null, 2)}</pre>
-);
-
-class Transition extends Component {
+export default class Transition extends Component {
 
   constructor(props) {
 
@@ -28,7 +22,7 @@ class Transition extends Component {
 
   componentDidMount() {
     const children = this.state.children;
-    for (let key in children) this.enter(key);
+    for (const key in children) this.enter(key);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -40,14 +34,14 @@ class Transition extends Component {
       children: Object.assign({}, prevChildren, nextChildren)
     });
 
-    for (let key in nextChildren) {
-      const hasPrev = prevChildren.hasOwnProperty( key);
+    for (const key in nextChildren) {
+      const hasPrev = prevChildren.hasOwnProperty(key);
       if (nextChildren[key] && (!hasPrev || this.leaving[key])) {
         this.keysToEnter.push(key);
       }
     }
 
-    for (let key in prevChildren) {
+    for (const key in prevChildren) {
       const hasNext = nextChildren.hasOwnProperty(key);
       if (prevChildren[key] && !hasNext) {
         this.keysToLeave.push(key);
@@ -70,7 +64,7 @@ class Transition extends Component {
           keysToLeave.forEach(this.leave);
         } else {
           this.keysToEnter = [];
-          keysToEnter.forEach(this.animateIn);
+          keysToEnter.forEach(this.enter);
         }
         break;
 
@@ -84,7 +78,6 @@ class Transition extends Component {
         } else {
           keysToLeave.forEach(this.leave);
         }
-
         break;
 
       default:
@@ -98,8 +91,7 @@ class Transition extends Component {
 
   getChildMapping(children) {
     return children.reduce((result, child) => {
-      const key = child.key;
-      result[key] = child;
+      result[child.key] = child;
       return result;
     }, {});
   }
@@ -110,7 +102,7 @@ class Transition extends Component {
     const complete = this.enterComplete.bind(this, key);
 
     const promise = new Promise(resolve => {
-      isFunction(component.animateIn) ? component.animateIn(resolve) : resolve();
+      (component && isFunction(component.animateIn)) ? component.animateIn(resolve) : resolve();
     }).then(complete);
 
     this.entering[key] = promise;
@@ -131,7 +123,7 @@ class Transition extends Component {
     const complete = this.leaveComplete.bind(this, key);
 
     const promise = new Promise(resolve => {
-      isFunction(component.animateOut) ? component.animateOut(resolve) : resolve();
+      (component && isFunction(component.animateOut)) ? component.animateOut(resolve) : resolve();
     }).then(complete);
 
     this.leaving[key] = promise;
@@ -146,12 +138,12 @@ class Transition extends Component {
   }
 
   render() {
-    const children = this.state.children;
 
-    return h(this.props.component || 'div', this.props, Object.keys(children).map(key => {
+    const children = this.state.children;
+    const { component, mode, ...props } = this.props;
+
+    return h(component || 'div', props, Object.keys(children).map(key => {
       return cloneElement(children[key], {ref: el => this.refs[key] = el});
     }));
   }
 }
-
-export default Transition;
