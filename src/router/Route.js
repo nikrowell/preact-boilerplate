@@ -14,11 +14,17 @@ function decode(value) {
       value = null;
   } else if (value === 'undefined') {
       value = undefined;
-  } else if (isNaN(value) === false) {
+  } else if (isNumeric(value)) {
       value = Number(value);
   }
 
   return value;
+}
+
+function isNumeric(value) {
+  if (typeof value === 'number') return true;
+  if (/^0x[0-9a-f]+$/i.test(value)) return true;
+  return /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(e[-+]?\d+)?$/.test(value);
 }
 
 export default class Route extends Component {

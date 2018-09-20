@@ -1,7 +1,7 @@
 import { Component, cloneElement, h } from 'preact';
 import { isFunction } from '../utils';
 
-export default class Transition extends Component {
+export default class TransitionGroup extends Component {
 
   constructor(props) {
 
@@ -102,7 +102,11 @@ export default class Transition extends Component {
     const complete = this.enterComplete.bind(this, key);
 
     const promise = new Promise(resolve => {
-      (component && isFunction(component.animateIn)) ? component.animateIn(resolve) : resolve();
+      if (component && isFunction(component.animateIn)) {
+        component.animateIn(resolve, component.base);
+       } else {
+         resolve();
+       }
     }).then(complete);
 
     this.entering[key] = promise;
@@ -123,7 +127,11 @@ export default class Transition extends Component {
     const complete = this.leaveComplete.bind(this, key);
 
     const promise = new Promise(resolve => {
-      (component && isFunction(component.animateOut)) ? component.animateOut(resolve) : resolve();
+      if (component && isFunction(component.animateOut)) {
+        component.animateOut(resolve, component.base);
+      } else {
+        resolve();
+      }
     }).then(complete);
 
     this.leaving[key] = promise;

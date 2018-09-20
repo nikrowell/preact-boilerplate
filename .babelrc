@@ -1,4 +1,9 @@
 {
-  "presets": ["preact"],
-  "plugins": ["transform-object-rest-spread"]
+  "presets": [
+    "preact"
+  ],
+  "plugins": [
+    "transform-object-rest-spread",
+    "transform-runtime"
+  ]
 }

@@ -1,58 +1,104 @@
 import { Component, h } from 'preact';
 import { Route, match } from '../router';
-import Transition from './Transition';
+import TransitionGroup from './TransitionGroup';
+import Preloader from './Preloader';
 import Header from './Header';
-import Canvas from './Canvas';
+import webgl from '../webgl';
 
 class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {transitionMode: 'simultaneous'};
-    this.onLinkClick = this.onLinkClick.bind(this);
+    this.onResize = this.onResize.bind(this);
+    this.onLoaded = this.onLoaded.bind(this);
+
+    this.state = {
+      ready: false,
+      assets: null,
+      width: null,
+      height: null
+    };
   }
 
   componentDidMount() {
-    document.body.addEventListener('click', this.onLinkClick);
-    // fetch(`${store.getState().site.api}/pages/home`)
-    fetch('http://cranium-api.localhost.com/work/brew?page=12')
-      .then(res => res.json())
-      .then(console.log)
-      // .then(res => this.setState({content: res.content}));
+    fetch('http://cranium-api.localhost.com/work/brew?page=12').then(res => res.json()).then(console.log)
+    window.addEventListener('resize', this.onResize);
+    window.addEventListener('orientationchange', this.onResize)
+    this.onResize();
   }
 
-  onLinkClick(event) {
-    const link = event.target;
-    if (false) {
-      event.preventDefault();
-      navigate(link.href);
+  componentDidUpdate(prevProps, prevState) {
+
+    if (this.state.ready && (this.state.ready !== prevState.ready)) {
+      // webgl.init(this.state.assets);
+      // webgl.start();
+      // webgl.draw();
     }
+
+    const { width, height } = this.state;
+    if (width !== prevState.width || height !== prevState.height) {
+      webgl.resize(width, height);
+    }
+
+    // webgl.update(this.props, this.state, prevProps, prevState);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resize)
+    window.removeEventListener('orientationchange', this.resize)
+  }
+
+  onResize(event) {
+    this.setState({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+  }
+
+  onLoaded(assets) {
+    console.log('onLoaded', assets[0].width, assets[0].height);
+    this.setState({ready: true});
+  }
+
+  renderPreloader() {
+    return (
+      <Preloader
+        key="preloader"
+        assets={this.props.assets}
+        onLoaded={this.onLoaded}
+        width={this.state.width}
+        height={this.state.height}
+      />
+    );
+  }
+
+  renderRoute() {
+
+    const matches = this.props.routes.filter(route => {
+      return match(route.path);
+    });
+
+    return matches.map(({ component:Section, path, ...props }) => (
+      <Section
+        key={path}
+        {...props}
+        {...this.props}
+        {...this.state}
+      />
+    ));
   }
 
   render() {
 
-    const content = this.props.routes
-      .filter(route => match(route.path))
-      .map(({ component:Section, path, ...props }) => <Section key={path} {...props} />);
+    const content = this.state.ready ? this.renderRoute() : this.renderPreloader();
 
     return (
       <div className="site">
-
         <Header />
-
-        <select value={this.state.transitionMode} onChange={e => this.setState({transitionMode: event.target.value})}>
-          <option value="simultaneous">simultaneous</option>
-          <option value="in-out">in-out</option>
-          <option value="out-in">out-in</option>
-        </select>
-
-        <small style={{display:'block',margin:10}}>Using routes array with Transition</small>
-        <Transition component="main" className="site-main" mode={this.state.transitionMode}>
+        <TransitionGroup component="main" className="site-main" mode={this.state.transitionMode}>
           {content}
-        </Transition>
-
-        {/* <small style={{display:'block',margin:10}}>Using Route instances</small>
-        <main className="site-main" style={{padding:20,background:'#EEE'}}>
+        </TransitionGroup>
+        {/* <main className="site-main" style={{padding:20,background:'#EEE'}}>
           {this.props.routes.map(route => (
             <Route
               key={route.path}
@@ -60,7 +106,6 @@ class App extends Component {
               render={route.component} />
           ))}
         </main> */}
-
         {debug(this.props, {color:'#64E',fontSize:17})}
         {debug(this.state, {color:'#49A',fontSize:17})}
       </div>

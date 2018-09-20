@@ -69,6 +69,20 @@ body {
 }
 
 
+.preloader {
+  position: absolute;
+  // @include center;
+  // left: 50%;
+  // top: 50%;
+  // transform: transate3d(-50%, -50%, 0);
+  padding: 10px 15px;
+  color: #FFF;
+  border-radius: 6px;
+  background-color: #F00;
+}
+
+
+
 
 .instafeed {
   overflow: hidden;
@@ -91,3 +105,4 @@ body {
   width: 70px;
   height: 70px;
 }
+
