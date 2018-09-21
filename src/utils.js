@@ -1,3 +1,8 @@
 
-export const isFunction = value => typeof value === 'function';
-export const isUndefined = value => typeof value === 'undefined';
+export function isFunction(value) {
+  return typeof value === 'function';
+};
+
+export function isUndefined(value) {
+  return typeof value === 'undefined';
+};

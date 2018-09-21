@@ -9,8 +9,8 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.onResize = this.onResize.bind(this);
     this.onLoaded = this.onLoaded.bind(this);
+    this.onResize = this.onResize.bind(this);
 
     this.state = {
       ready: false,
@@ -21,26 +21,32 @@ class App extends Component {
   }
 
   componentDidMount() {
-    fetch('http://cranium-api.localhost.com/work/brew?page=12').then(res => res.json()).then(console.log)
+    // fetch('http://cranium-api.localhost.com/work/brew?page=12').then(res => res.json()).then(console.log)
     window.addEventListener('resize', this.onResize);
-    window.addEventListener('orientationchange', this.onResize)
+    window.addEventListener('orientationchange', this.onResize);
     this.onResize();
   }
 
   componentDidUpdate(prevProps, prevState) {
 
-    if (this.state.ready && (this.state.ready !== prevState.ready)) {
-      // webgl.init(this.state.assets);
-      // webgl.start();
-      // webgl.draw();
-    }
+    const { width, height, ready } = this.state;
 
-    const { width, height } = this.state;
-    if (width !== prevState.width || height !== prevState.height) {
-      webgl.resize(width, height);
-    }
+    webgl.resize(width, height);
+    webgl.update(this.props, this.state, prevProps, prevState);
 
-    // webgl.update(this.props, this.state, prevProps, prevState);
+    if (ready && ready !== prevState.ready) {
+
+      // pass in loaded assets (textures etc) and initial animation options,
+      // start the animation loop and draw a frame so that it's correct on first render
+      webgl.init({
+        delay: 0.5,
+        assets: this.state.assets
+      });
+
+      webgl.start();
+      webgl.draw();
+      // webgl.animateIn();
+    }
   }
 
   componentWillUnmount() {
@@ -48,16 +54,16 @@ class App extends Component {
     window.removeEventListener('orientationchange', this.resize)
   }
 
+  onLoaded(assets) {
+    console.log('onLoaded', assets[0].width, assets[0].height);
+    this.setState({ready: true});
+  }
+
   onResize(event) {
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
     });
-  }
-
-  onLoaded(assets) {
-    console.log('onLoaded', assets[0].width, assets[0].height);
-    this.setState({ready: true});
   }
 
   renderPreloader() {

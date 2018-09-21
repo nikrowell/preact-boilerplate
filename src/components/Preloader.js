@@ -14,12 +14,8 @@ export default class Preloder extends Component {
     this.props.onLoaded(assets);
   }
 
-  onProgress(event) {
-    console.log('onProgress', event);
-  }
-
   animateIn(done) {
-    Tween.fromTo(this.base, 1, {
+    Tween.fromTo(this.base, 0.5, {
       autoAlpha: 0,
       y: 100
     }, {
@@ -34,6 +30,10 @@ export default class Preloder extends Component {
       autoAlpha: 0,
       onComplete: done
     });
+  }
+
+  onProgress(event) {
+    console.log('onProgress', event);
   }
 
   render() {

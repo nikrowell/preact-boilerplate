@@ -1,116 +1,164 @@
-import { Renderer, Camera, Geometry, Program, Mesh } from 'ogl';
+import { Renderer, Camera, Transform, Texture, Program, Mesh, Plane } from 'ogl';
+import Tween from 'gsap';
 
-const renderer = new Renderer();
+
+function createGraphic(size, draw) {
+  const [ width, height ] = Array.isArray(size) ? size : [size, size];
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.width = width;
+  canvas.height = height;
+  const result = draw.call(context, context, width, height);
+  return typeof result === 'undefined' ? context : result;
+}
+
+
+const renderer = new Renderer({dpr: window.devicePixelRatio || 1});
+const scene = new Transform();
+
 const gl = renderer.gl;
-
 gl.clearColor(1, 1, 1, 1);
 gl.canvas.className = 'webgl';
-document.body.appendChild(gl.canvas);
 
-const camera = new Camera(gl, {fov: 15});
-camera.position.z = 15;
+const camera = new Camera(gl, {fov: 45});
+camera.position.z = 10;
 
-const num = 100;
-const position = new Float32Array(num * 3);
-const random = new Float32Array(num * 4);
-for (let i = 0; i < num; i++) {
-  position.set([Math.random(), Math.random(), Math.random()], i * 3);
-  random.set([Math.random(), Math.random(), Math.random(), Math.random()], i * 4);
-}
 
-const geometry = new Geometry(gl, {
-  position: {size: 3, data: position},
-  random: {size: 4, data: random},
+const texture = new Texture(gl, {
+  image: createGraphic(256, (context, width) => {
+    const radius = width / 2;
+    const gradient = context.createRadialGradient(radius, radius, 0, radius, radius, radius);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.25, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.5, 'rgba(255, 156, 1, 1)');
+    gradient.addColorStop(0.6, 'rgba(243, 81, 1, 1)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, width, width);
+    return context.canvas;
+  })
 });
+
+const vertexShader = `
+precision highp float;
+precision highp int;
+uniform mat4 projectionMatrix;
+uniform mat4 modelViewMatrix;
+attribute vec3 position;
+attribute vec2 uv;
+varying vec2 vUv;
+
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`;
+
+const fragmentShader = `
+precision highp float;
+precision highp int;
+uniform sampler2D texture;
+varying vec2 vUv;
+void main() {
+  gl_FragColor = texture2D(texture, vUv);
+}`;
 
 const program = new Program(gl, {
-  vertexShader: `
-  precision highp float;
-  precision highp int;
-  attribute vec3 position;
-  attribute vec4 random;
-  uniform mat4 modelMatrix;
-  uniform mat4 viewMatrix;
-  uniform mat4 projectionMatrix;
-  uniform float uTime;
-  varying vec4 vRandom;
-  void main() {
-  vRandom = random;
-
-  // positions are 0->1, so make -1->1
-  vec3 pos = position * 2.0 - 1.0;
-
-  // Scale towards camera to be more interesting
-  pos.z *= 10.0;
-
-  // modelMatrix is one of the automatically attached uniforms when using the Mesh class
-  vec4 mPos = modelMatrix * vec4(pos, 1.0);
-  // add some movement in world space
-  float t = uTime * 0.6;
-  mPos.x += sin(t * random.z + 6.28 * random.w) * mix(0.1, 1.5, random.x);
-  mPos.y += sin(t * random.y + 6.28 * random.x) * mix(0.1, 1.5, random.w);
-  mPos.z += sin(t * random.w + 6.28 * random.y) * mix(0.1, 1.5, random.z);
-
-  // get the model view position so that we can scale the points off into the distance
-  vec4 mvPos = viewMatrix * mPos;
-  gl_PointSize = 300.0 / length(mvPos.xyz) * (random.x + 0.1);
-  gl_Position = projectionMatrix * mvPos;
-
-  }
-  `,
-  fragmentShader: `
-  precision highp float;
-  precision highp int;
-  uniform float uTime;
-  varying vec4 vRandom;
-  void main() {
-  vec2 uv = gl_PointCoord.xy;
-
-  float circle = smoothstep(0.5, 0.4, length(uv - 0.5)) * 0.8;
-
-  gl_FragColor.rgb = 0.8 + 0.2 * sin(uv.yxx + uTime + vRandom.y * 6.28) + vec3(0.1, 0.0, 0.3);
-  gl_FragColor.a = circle;
-  }
-  `,
+  vertexShader,
+  fragmentShader,
   uniforms: {
-  uTime: {value: 0},
+    texture: {value: texture},
+    time: {value: 0}
   },
-  transparent: true,
-  depthTest: false,
+  cullFace: null // Don't cull faces so that plane is double sided
 });
 
-// Make sure mode is gl.POINTS
-const particles = new Mesh(gl, {mode: gl.POINTS, geometry, program});
-requestAnimationFrame(update);
+const plane = new Mesh(gl, {
+  program,
+  geometry: new Plane(gl, 3)
+});
 
-function update(t) {
-  requestAnimationFrame(update);
-  // add some slight overall movement to be more interesting
-  particles.rotation.x = Math.sin(t * 0.0002) * 0.1;
-  particles.rotation.y = Math.cos(t * 0.0005) * 0.15;
-  particles.rotation.z += 0.01;
-  program.uniforms.uTime.value = t * 0.001;
-  renderer.render({scene: particles, camera});
+// plane.position.set(0, 0, 0);
+plane.setParent(scene);
+
+/* if (gui) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
+  // attach dat.gui stuff here as usual
+  const folder = gui.addFolder('honeycomb');
+  const settings = {
+    colorA: this.material.uniforms.colorA.value.getStyle(),
+    colorB: this.material.uniforms.colorB.value.getStyle()
+  };
+  const update = () => {
+    this.material.uniforms.colorA.value.setStyle(settings.colorA);
+    this.material.uniforms.colorB.value.setStyle(settings.colorB);
+  };
+  folder.addColor(settings, 'colorA').onChange(update);
+  folder.addColor(settings, 'colorB').onChange(update);
+  folder.open();
+} */
+
+
+
+
+
+
+const mouse = { x: 0, y: 0 };
+
+function traverse(fn, ...args) {
+  scene.traverse(child => {
+    isFunction(child[fn]) && child[fn].apply(child, args);
+  });
 }
 
+// function getMousePosition(event) {
+//   const x = (event.touches) ? event.touches[0].clientX : event.clientX;
+//   const y = (event.touches) ? event.touches[0].clientY : event.clientY;
+//   return [ x, y ];
+// }
 
+function onMouseDown(event) {
+  // mouse.x =  2 * (event.clientX / this.width) - 1;
+  // mouse.y = -2 * (event.clientY / this.height) + 1;
+  // child objects receive event and normalized pos (using touches[0]
+  // onMouseDown('onMouseUp', mouse);
+}
+
+function onMouseMove(event) {
+  // traverse('onMouseMove', mouse);
+}
+
+function onMouseUp(event) {
+  // traverse('onMouseUp', mouse);
+}
 
 class WebGL {
 
   constructor() {
+    this.raf = null;
     this.width;
     this.height;
-    this.raf = null;
-    console.log('webgl!');
-    // this.resize();
+    this.animate = this.animate.bind(this);
   }
 
-  resize(width, height) {
-    renderer.setSize(width, height);
-    camera.perspective({aspect: gl.canvas.width / gl.canvas.height});
-    // draw a frame to ensure the new size has been registered visually
-    // this.draw();
-    // return this;
+  init(options) {
+
+    const body = document.body;
+
+    body.appendChild(gl.canvas);
+
+    body.addEventListener('mousemove', event => {
+      mouse.x =  2 * (event.clientX / this.width) - 1;
+      mouse.y = -2 * (event.clientY / this.height) + 1;
+    });
+
+    // body.addEventListener('mousedown', onMouseDown);
+    // body.addEventListener('touchstart', onMouseDown);
+    // body.addEventListener('mousemove', onMouseMove);
+    // body.addEventListener('touchmove', onMouseMove);
+    // body.addEventListener('mouseup', onMouseUp);
+    // body.addEventListener('touchend', onMouseUp);
+    // body.addEventListener('touchcancel', onMouseUp);
+
+    // traverse('init', options);
   }
 
   start() {
@@ -126,13 +174,37 @@ class WebGL {
     return this;
   }
 
-  animateIn() {
-    console.log('webgl animateIn!');
+  resize(width, height) {
+
+    if (width !== this.width || height !== this.height) {
+      this.width = width;
+      this.height = height;
+      renderer.setSize(width, height);
+      camera.perspective({aspect: gl.canvas.width / gl.canvas.height});
+      this.draw();
+    }
+
+    return this;
+  }
+
+  update(props, state, prevProps, prevState) {
+    console.log('webgl.update');
+    // traverse('update', props, state, prevProps, prevState);
+  }
+
+  draw() {
+    console.log('webgl.draw');
   }
 
   animate(t) {
+
     if (this.raf === null) return;
-    window.requestAnimationFrame(this.animate);
+    requestAnimationFrame(this.animate);
+
+    plane.rotation.x += (-mouse.y - plane.rotation.x) * 0.05;
+    plane.rotation.y += ( mouse.x - plane.rotation.y) * 0.05;
+    // program.uniforms.time.value = t * 0.001;
+    renderer.render({scene, camera});
   }
 }
 

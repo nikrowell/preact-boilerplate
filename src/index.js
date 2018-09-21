@@ -1,4 +1,3 @@
-import '../scss/index.scss';
 import { render, h } from 'preact';
 import { Route } from './router';
 import routes from './routes';
@@ -18,6 +17,23 @@ function init() {
     type: 'image'
   }];
 
+  // function loadScript(url) {
+  //   return new Promise((resolve, reject) => {
+  //     const script = document.createElement('script');
+  //     script.src = url;
+  //     script.onload = resolve;
+  //     script.onerror = reject;
+  //     document.body.appendChild(script);
+  //   });
+  // }
+
+  // if (window.DEBUG) {
+  //   assets.push({
+  //     url: 'https://unpkg.com/dat.gui',
+  //     type: item => loadScript(item.url)
+  //   });
+  // }
+
   render(
     <Route render={props => <App {...props} assets={assets} routes={routes} />} />,
     document.body
@@ -35,7 +51,7 @@ const features = [];
 
 if(features.length) {
   const script = document.createElement('script');
-  script.src = '//cdn.polyfill.io/v2/polyfill.min.js?features=' + features.join(',') + '&flags=gated,always&ua=' + window.navigator.userAgent;
+  script.src = `//cdn.polyfill.io/v2/polyfill.min.js?features=${features.join(',')}&flags=gated,always&ua=${window.navigator.userAgent}`;
   script.onload = init;
   document.body.appendChild(script);
 } else { init() }
