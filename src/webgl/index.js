@@ -1,4 +1,5 @@
 import { Renderer, Camera, Transform, Texture, Program, Mesh, Plane } from 'ogl';
+import { isFunction } from '../utils';
 import Tween from 'gsap';
 
 
@@ -103,31 +104,29 @@ plane.setParent(scene);
 
 const mouse = { x: 0, y: 0 };
 
+// function setMousePosition(event) {
+//   const x = (event.touches) ? event.touches[0].clientX : event.clientX;
+//   const y = (event.touches) ? event.touches[0].clientY : event.clientY;
+//   mouse.x =  2 * (x / instance.width) - 1;
+//   mouse.y = -2 * (y / instance.height) + 1;
+// }
+
+// function onMouseDown(event) {
+//   onMouseDown('onMouseDown', mouse);
+// }
+
+// function onMouseMove(event) {
+//   traverse('onMouseMove', mouse);
+// }
+
+// function onMouseUp(event) {
+//   traverse('onMouseUp', mouse);
+// }
+
 function traverse(fn, ...args) {
   scene.traverse(child => {
     isFunction(child[fn]) && child[fn].apply(child, args);
   });
-}
-
-// function getMousePosition(event) {
-//   const x = (event.touches) ? event.touches[0].clientX : event.clientX;
-//   const y = (event.touches) ? event.touches[0].clientY : event.clientY;
-//   return [ x, y ];
-// }
-
-function onMouseDown(event) {
-  // mouse.x =  2 * (event.clientX / this.width) - 1;
-  // mouse.y = -2 * (event.clientY / this.height) + 1;
-  // child objects receive event and normalized pos (using touches[0]
-  // onMouseDown('onMouseUp', mouse);
-}
-
-function onMouseMove(event) {
-  // traverse('onMouseMove', mouse);
-}
-
-function onMouseUp(event) {
-  // traverse('onMouseUp', mouse);
 }
 
 class WebGL {
@@ -142,14 +141,12 @@ class WebGL {
   init(options) {
 
     const body = document.body;
-
     body.appendChild(gl.canvas);
 
     body.addEventListener('mousemove', event => {
-      mouse.x =  2 * (event.clientX / this.width) - 1;
-      mouse.y = -2 * (event.clientY / this.height) + 1;
+      mouse.x =  2 * (event.clientX / instance.width) - 1;
+      mouse.y = -2 * (event.clientY / instance.height) + 1;
     });
-
     // body.addEventListener('mousedown', onMouseDown);
     // body.addEventListener('touchstart', onMouseDown);
     // body.addEventListener('mousemove', onMouseMove);
@@ -158,7 +155,7 @@ class WebGL {
     // body.addEventListener('touchend', onMouseUp);
     // body.addEventListener('touchcancel', onMouseUp);
 
-    // traverse('init', options);
+    traverse('init', options);
   }
 
   start() {
@@ -177,23 +174,22 @@ class WebGL {
   resize(width, height) {
 
     if (width !== this.width || height !== this.height) {
-      this.width = width;
-      this.height = height;
       renderer.setSize(width, height);
       camera.perspective({aspect: gl.canvas.width / gl.canvas.height});
-      this.draw();
+      this.width = width;
+      this.height = height;
+      this.render();
     }
 
     return this;
   }
 
   update(props, state, prevProps, prevState) {
-    console.log('webgl.update');
-    // traverse('update', props, state, prevProps, prevState);
+    traverse('update', props, state, prevProps, prevState);
   }
 
-  draw() {
-    console.log('webgl.draw');
+  render() {
+    renderer.render({scene, camera});
   }
 
   animate(t) {
@@ -204,7 +200,7 @@ class WebGL {
     plane.rotation.x += (-mouse.y - plane.rotation.x) * 0.05;
     plane.rotation.y += ( mouse.x - plane.rotation.y) * 0.05;
     // program.uniforms.time.value = t * 0.001;
-    renderer.render({scene, camera});
+    this.render();
   }
 }
 

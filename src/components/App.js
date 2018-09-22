@@ -36,15 +36,12 @@ class App extends Component {
 
     if (ready && ready !== prevState.ready) {
 
-      // pass in loaded assets (textures etc) and initial animation options,
-      // start the animation loop and draw a frame so that it's correct on first render
       webgl.init({
         delay: 0.5,
         assets: this.state.assets
       });
 
       webgl.start();
-      webgl.draw();
       // webgl.animateIn();
     }
   }
