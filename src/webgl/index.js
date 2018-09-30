@@ -1,18 +1,5 @@
-import { Renderer, Camera, Transform, Texture, Program, Mesh, Plane } from 'ogl';
+import { Renderer, Camera, Transform, Program, Mesh, Plane, Vec2, Vec4 } from 'ogl';
 import { isFunction } from '../utils';
-import Tween from 'gsap';
-
-
-function createGraphic(size, draw) {
-  const [ width, height ] = Array.isArray(size) ? size : [size, size];
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-  canvas.width = width;
-  canvas.height = height;
-  const result = draw.call(context, context, width, height);
-  return typeof result === 'undefined' ? context : result;
-}
-
 
 const renderer = new Renderer({dpr: window.devicePixelRatio || 1});
 const scene = new Transform();
@@ -24,50 +11,29 @@ gl.canvas.className = 'webgl';
 const camera = new Camera(gl, {fov: 45});
 camera.position.z = 10;
 
-
-const texture = new Texture(gl, {
-  image: createGraphic(256, (context, width) => {
-    const radius = width / 2;
-    const gradient = context.createRadialGradient(radius, radius, 0, radius, radius, radius);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.25, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.5, 'rgba(255, 156, 1, 1)');
-    gradient.addColorStop(0.6, 'rgba(243, 81, 1, 1)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, width, width);
-    return context.canvas;
-  })
-});
-
 const vertexShader = `
 precision highp float;
 precision highp int;
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
 attribute vec3 position;
-attribute vec2 uv;
-varying vec2 vUv;
 
 void main() {
-  vUv = uv;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }`;
 
 const fragmentShader = `
 precision highp float;
 precision highp int;
-uniform sampler2D texture;
-varying vec2 vUv;
+
 void main() {
-  gl_FragColor = texture2D(texture, vUv);
+  gl_FragColor = vec4(1.0,0,0,1.0);
 }`;
 
 const program = new Program(gl, {
   vertexShader,
   fragmentShader,
   uniforms: {
-    texture: {value: texture},
     time: {value: 0}
   },
   cullFace: null // Don't cull faces so that plane is double sided
@@ -81,81 +47,70 @@ const plane = new Mesh(gl, {
 // plane.position.set(0, 0, 0);
 plane.setParent(scene);
 
-/* if (gui) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
-  // attach dat.gui stuff here as usual
-  const folder = gui.addFolder('honeycomb');
-  const settings = {
-    colorA: this.material.uniforms.colorA.value.getStyle(),
-    colorB: this.material.uniforms.colorB.value.getStyle()
-  };
-  const update = () => {
-    this.material.uniforms.colorA.value.setStyle(settings.colorA);
-    this.material.uniforms.colorB.value.setStyle(settings.colorB);
-  };
-  folder.addColor(settings, 'colorA').onChange(update);
-  folder.addColor(settings, 'colorB').onChange(update);
-  folder.open();
-} */
-
-
-
-
-
-
-const mouse = { x: 0, y: 0 };
-
-// function setMousePosition(event) {
-//   const x = (event.touches) ? event.touches[0].clientX : event.clientX;
-//   const y = (event.touches) ? event.touches[0].clientY : event.clientY;
-//   mouse.x =  2 * (x / instance.width) - 1;
-//   mouse.y = -2 * (y / instance.height) + 1;
-// }
-
-// function onMouseDown(event) {
-//   onMouseDown('onMouseDown', mouse);
-// }
-
-// function onMouseMove(event) {
-//   traverse('onMouseMove', mouse);
-// }
-
-// function onMouseUp(event) {
-//   traverse('onMouseUp', mouse);
-// }
-
-function traverse(fn, ...args) {
-  scene.traverse(child => {
-    isFunction(child[fn]) && child[fn].apply(child, args);
-  });
-}
-
 class WebGL {
 
   constructor() {
-    this.raf = null;
     this.width;
     this.height;
+    // this.renderer;
+    // this.camera;
+    this.scene = scene;
+    this.resolution = new Vec2();
+    this.mouse = new Vec4();
+    this.click = new Vec2();
+    this.raf = null;
     this.animate = this.animate.bind(this);
   }
 
   init(options) {
 
-    const body = document.body;
-    body.appendChild(gl.canvas);
+    /* if (gui) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
+      // attach dat.gui stuff here as usual
+      const folder = gui.addFolder('honeycomb');
+      const settings = {
+        colorA: this.material.uniforms.colorA.value.getStyle(),
+        colorB: this.material.uniforms.colorB.value.getStyle()
+      };
+      const update = () => {
+        this.material.uniforms.colorA.value.setStyle(settings.colorA);
+        this.material.uniforms.colorB.value.setStyle(settings.colorB);
+      };
+      folder.addColor(settings, 'colorA').onChange(update);
+      folder.addColor(settings, 'colorB').onChange(update);
+      folder.open();
+    } */
 
-    body.addEventListener('mousemove', event => {
-      mouse.x =  2 * (event.clientX / instance.width) - 1;
-      mouse.y = -2 * (event.clientY / instance.height) + 1;
+    document.body.appendChild(gl.canvas);
+    this.addEvents();
+    this.traverse('init', options);
+    return this;
+  }
+
+  addEvents() {
+    document.addEventListener('mousedown', e => this.onTouchEvent(e, 'onTouchStart'));
+    document.addEventListener('touchstart', e => this.onTouchEvent(e, 'onTouchStart'));
+    document.addEventListener('mousemove', e => this.onTouchEvent(e, 'onTouchMove'));
+    document.addEventListener('touchmove', e => this.onTouchEvent(e, 'onTouchMove'));
+    document.addEventListener('mouseup', e => this.onTouchEvent(e, 'onTouchEnd'));
+    document.addEventListener('touchend', e => this.onTouchEvent(e, 'onTouchEnd'));
+    document.addEventListener('touchcancel', e => this.onTouchEvent(e, 'onTouchEnd'));
+  }
+
+  onTouchEvent(event, fn) {
+
+    const x = (event.touches) ? event.touches[0].clientX : event.clientX;
+    const y = (event.touches) ? event.touches[0].clientY : event.clientY;
+
+    if (event.type === 'mousedown' || event.type === 'touchstart') {
+      this.click.set(x, y);
+    } else if(event.type === 'mousemove' || event.type === 'touchmove') {
+      this.mouse.set(x, y, this.mouse.x, this.mouse.y);
+    }
+
+    this.traverse(fn, event, {
+      mouse: this.mouse,
+      click: this.click
     });
-    // body.addEventListener('mousedown', onMouseDown);
-    // body.addEventListener('touchstart', onMouseDown);
-    // body.addEventListener('mousemove', onMouseMove);
-    // body.addEventListener('touchmove', onMouseMove);
-    // body.addEventListener('mouseup', onMouseUp);
-    // body.addEventListener('touchend', onMouseUp);
-    // body.addEventListener('touchcancel', onMouseUp);
-
-    traverse('init', options);
   }
 
   start() {
@@ -178,6 +133,7 @@ class WebGL {
       camera.perspective({aspect: gl.canvas.width / gl.canvas.height});
       this.width = width;
       this.height = height;
+      this.resolution.set(width, height);
       this.render();
     }
 
@@ -185,7 +141,7 @@ class WebGL {
   }
 
   update(props, state, prevProps, prevState) {
-    traverse('update', props, state, prevProps, prevState);
+    this.traverse('update', props, state, prevProps, prevState);
   }
 
   render() {
@@ -197,10 +153,31 @@ class WebGL {
     if (this.raf === null) return;
     requestAnimationFrame(this.animate);
 
-    plane.rotation.x += (-mouse.y - plane.rotation.x) * 0.05;
-    plane.rotation.y += ( mouse.x - plane.rotation.y) * 0.05;
-    // program.uniforms.time.value = t * 0.001;
+    const mouseX =  2 * (this.mouse.x / this.width) - 1;
+    const mouseY = -2 * (this.mouse.y / this.height) + 1;
+    plane.rotation.x += (-mouseY - plane.rotation.x) * 0.05;
+    plane.rotation.y += ( mouseX - plane.rotation.y) * 0.05;
+
+    const uniforms = {
+      resolution: this.resolution,
+      mouse: this.mouse,
+      click: this.click,
+      time: t * 0.001
+    };
+
+    this.traverse('animate', uniforms);
     this.render();
+  }
+
+  animateIn(options) {
+    console.log('webgl animateIn');
+    this.traverse('animateIn', options);
+  }
+
+  traverse(fn, ...args) {
+    this.scene.traverse(child => {
+      isFunction(child[fn]) && child[fn].apply(child, args);
+    });
   }
 }
 

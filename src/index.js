@@ -17,23 +17,6 @@ function init() {
     type: 'image'
   }];
 
-  // function loadScript(url) {
-  //   return new Promise((resolve, reject) => {
-  //     const script = document.createElement('script');
-  //     script.src = url;
-  //     script.onload = resolve;
-  //     script.onerror = reject;
-  //     document.body.appendChild(script);
-  //   });
-  // }
-
-  // if (window.DEBUG) {
-  //   assets.push({
-  //     url: 'https://unpkg.com/dat.gui',
-  //     type: item => loadScript(item.url)
-  //   });
-  // }
-
   render(
     <Route render={props => <App {...props} assets={assets} routes={routes} />} />,
     document.body

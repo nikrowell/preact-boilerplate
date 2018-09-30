@@ -1,5 +1,5 @@
 import { Component, h } from 'preact';
-import { Route, match } from '../router';
+import { match } from '../router';
 import TransitionGroup from './TransitionGroup';
 import Preloader from './Preloader';
 import Header from './Header';
@@ -13,10 +13,9 @@ class App extends Component {
     this.onResize = this.onResize.bind(this);
 
     this.state = {
-      ready: false,
-      assets: null,
       width: null,
-      height: null
+      height: null,
+      assets: null
     };
   }
 
@@ -29,20 +28,13 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
 
-    const { width, height, ready } = this.state;
+    const { width, height, assets } = this.state;
 
     webgl.resize(width, height);
     webgl.update(this.props, this.state, prevProps, prevState);
 
-    if (ready && ready !== prevState.ready) {
-
-      webgl.init({
-        delay: 0.5,
-        assets: this.state.assets
-      });
-
-      webgl.start();
-      // webgl.animateIn();
+    if (assets && assets !== prevState.assets) {
+      webgl.init({assets}).start().animateIn();
     }
   }
 
@@ -52,8 +44,7 @@ class App extends Component {
   }
 
   onLoaded(assets) {
-    console.log('onLoaded', assets[0].width, assets[0].height);
-    this.setState({ready: true});
+    this.setState({assets});
   }
 
   onResize(event) {
@@ -67,10 +58,10 @@ class App extends Component {
     return (
       <Preloader
         key="preloader"
-        assets={this.props.assets}
-        onLoaded={this.onLoaded}
         width={this.state.width}
         height={this.state.height}
+        assets={this.props.assets}
+        onLoaded={this.onLoaded}
       />
     );
   }
@@ -93,7 +84,7 @@ class App extends Component {
 
   render() {
 
-    const content = this.state.ready ? this.renderRoute() : this.renderPreloader();
+    const content = this.state.assets ? this.renderRoute() : this.renderPreloader();
 
     return (
       <div className="site">
