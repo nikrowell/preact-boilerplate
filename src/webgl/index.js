@@ -1,5 +1,6 @@
-import { Renderer, Camera, Transform, Program, Mesh, Plane, Vec2, Vec4 } from 'ogl';
+import { Renderer, Transform, Camera, Program, Mesh, Plane, Vec2, Vec4 } from 'ogl';
 import { isFunction } from '../utils';
+import Tween from 'gsap';
 
 const renderer = new Renderer({dpr: window.devicePixelRatio || 1});
 const scene = new Transform();
@@ -11,32 +12,31 @@ gl.canvas.className = 'webgl';
 const camera = new Camera(gl, {fov: 45});
 camera.position.z = 10;
 
-const vertexShader = `
-precision highp float;
-precision highp int;
-uniform mat4 projectionMatrix;
-uniform mat4 modelViewMatrix;
-attribute vec3 position;
-
-void main() {
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}`;
-
-const fragmentShader = `
-precision highp float;
-precision highp int;
-
-void main() {
-  gl_FragColor = vec4(1.0,0,0,1.0);
-}`;
-
 const program = new Program(gl, {
-  vertexShader,
-  fragmentShader,
+  vertex: `
+  precision highp float;
+  precision highp int;
+  uniform mat4 projectionMatrix;
+  uniform mat4 modelViewMatrix;
+  attribute vec3 position;
+
+  void main() {
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }`,
+  fragment: `
+  precision highp float;
+  precision highp int;
+  uniform float alpha;
+
+  void main() {
+    gl_FragColor = vec4(1.0,0,0,alpha);
+  }`,
   uniforms: {
-    time: {value: 0}
+    time: {value: 0},
+    alpha: {value: 0}
   },
-  cullFace: null // Don't cull faces so that plane is double sided
+  transparent: true,
+  cullFace: null
 });
 
 const plane = new Mesh(gl, {
@@ -64,21 +64,21 @@ class WebGL {
 
   init(options) {
 
-    /* if (gui) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
-      // attach dat.gui stuff here as usual
-      const folder = gui.addFolder('honeycomb');
-      const settings = {
-        colorA: this.material.uniforms.colorA.value.getStyle(),
-        colorB: this.material.uniforms.colorB.value.getStyle()
-      };
-      const update = () => {
-        this.material.uniforms.colorA.value.setStyle(settings.colorA);
-        this.material.uniforms.colorB.value.setStyle(settings.colorB);
-      };
-      folder.addColor(settings, 'colorA').onChange(update);
-      folder.addColor(settings, 'colorB').onChange(update);
-      folder.open();
-    } */
+    // if (window.dat) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
+    //   // attach dat.gui stuff here as usual
+    //   const folder = gui.addFolder('honeycomb');
+    //   const settings = {
+    //     colorA: this.material.uniforms.colorA.value.getStyle(),
+    //     colorB: this.material.uniforms.colorB.value.getStyle()
+    //   };
+    //   const update = () => {
+    //     this.material.uniforms.colorA.value.setStyle(settings.colorA);
+    //     this.material.uniforms.colorB.value.setStyle(settings.colorB);
+    //   };
+    //   folder.addColor(settings, 'colorA').onChange(update);
+    //   folder.addColor(settings, 'colorB').onChange(update);
+    //   folder.open();
+    // }
 
     document.body.appendChild(gl.canvas);
     this.addEvents();
@@ -98,13 +98,19 @@ class WebGL {
 
   onTouchEvent(event, fn) {
 
+    if (this.raf === null) return;
+
     const x = (event.touches) ? event.touches[0].clientX : event.clientX;
     const y = (event.touches) ? event.touches[0].clientY : event.clientY;
 
     if (event.type === 'mousedown' || event.type === 'touchstart') {
       this.click.set(x, y);
     } else if(event.type === 'mousemove' || event.type === 'touchmove') {
+      // TODO: store previous mouse position or projected position?
       this.mouse.set(x, y, this.mouse.x, this.mouse.y);
+      // const z =  2 * (x / this.width) - 1;
+      // const w = -2 * (y / this.height) + 1;
+      // this.mouse.set(x, y, z, w);
     }
 
     this.traverse(fn, event, {
@@ -170,7 +176,15 @@ class WebGL {
   }
 
   animateIn(options) {
-    console.log('webgl animateIn');
+
+    Tween.to(plane.program.uniforms.alpha, 2, {value: 1});
+    Tween.fromTo(plane.position, 2, {
+      y: -2
+    }, {
+      y: 0,
+      ease: Expo.easeOut
+    });
+
     this.traverse('animateIn', options);
   }
 

@@ -10,14 +10,13 @@ export default class TransitionGroup extends Component {
     const children = this.getChildMapping(this.props.children);
     this.state = {children};
 
-    this.refs = {};
+    this.enter = this.enter.bind(this);
+    this.leave = this.leave.bind(this);
     this.keysToEnter = [];
     this.keysToLeave = [];
     this.entering = {};
     this.leaving = {};
-
-    this.enter = this.enter.bind(this);
-    this.leave = this.leave.bind(this);
+    this.refs = {};
   }
 
   componentDidMount() {
