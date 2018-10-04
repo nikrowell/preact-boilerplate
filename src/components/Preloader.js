@@ -41,10 +41,10 @@ export default class Preloder extends Component {
     const queue = this.props.assets;
 
     if (window.DEBUG) {
-      queue.push({
-        url: 'https://unpkg.com/dat.gui',
-        type: loadScript
-      });
+      // queue.push({
+      //   url: 'https://unpkg.com/dat.gui',
+      //   type: loadScript
+      // });
     }
 
     const assets = await load.all(queue, this.onProgress);

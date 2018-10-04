@@ -21,7 +21,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // fetch('http://cranium-api.localhost.com/work/brew?page=12').then(res => res.json()).then(console.log)
     window.addEventListener('resize', this.onResize);
     window.addEventListener('orientationchange', this.onResize);
     this.onResize();
@@ -35,7 +34,7 @@ class App extends Component {
     webgl.update(this.props, this.state, prevProps, prevState);
 
     if (assets && assets !== prevState.assets) {
-      webgl.init({assets}).start().animateIn();
+      webgl.init({assets});
     }
   }
 
@@ -48,7 +47,7 @@ class App extends Component {
     this.setState({assets});
   }
 
-  onResize(event) {
+  onResize() {
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
@@ -62,8 +61,7 @@ class App extends Component {
         width={this.state.width}
         height={this.state.height}
         assets={this.props.assets}
-        onLoaded={this.onLoaded}
-      />
+        onLoaded={this.onLoaded} />
     );
   }
 
@@ -78,14 +76,13 @@ class App extends Component {
         key={path}
         {...props}
         {...this.props}
-        {...this.state}
-      />
+        {...this.state} />
     ));
   }
 
   render() {
 
-    const content = this.state.assets ? this.renderRoute() : this.renderPreloader();
+    const content = this.state.assets === null ? this.renderPreloader() : this.renderRoute();
 
     return (
       <div className="site">
@@ -98,14 +95,6 @@ class App extends Component {
         <TransitionGroup component="main" className="site-main" mode={this.state.transitionMode}>
           {content}
         </TransitionGroup>
-        {/* <main className="site-main" style={{padding:20,background:'#EEE'}}>
-          {this.props.routes.map(route => (
-            <Route
-              key={route.path}
-              path={route.path}
-              render={route.component} />
-          ))}
-        </main> */}
         {debug(this.props, {color:'#64E',fontSize:17})}
         {debug(this.state, {color:'#49A',fontSize:17})}
       </div>

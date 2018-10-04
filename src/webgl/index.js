@@ -47,6 +47,22 @@ const plane = new Mesh(gl, {
 // plane.position.set(0, 0, 0);
 plane.setParent(scene);
 
+// if (window.dat) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
+//   // attach dat.gui stuff here as usual
+//   const folder = gui.addFolder('honeycomb');
+//   const settings = {
+//     colorA: this.material.uniforms.colorA.value.getStyle(),
+//     colorB: this.material.uniforms.colorB.value.getStyle()
+//   };
+//   const update = () => {
+//     this.material.uniforms.colorA.value.setStyle(settings.colorA);
+//     this.material.uniforms.colorB.value.setStyle(settings.colorB);
+//   };
+//   folder.addColor(settings, 'colorA').onChange(update);
+//   folder.addColor(settings, 'colorB').onChange(update);
+//   folder.open();
+// }
+
 class WebGL {
 
   constructor() {
@@ -64,29 +80,7 @@ class WebGL {
 
   init(options) {
 
-    // if (window.dat) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
-    //   // attach dat.gui stuff here as usual
-    //   const folder = gui.addFolder('honeycomb');
-    //   const settings = {
-    //     colorA: this.material.uniforms.colorA.value.getStyle(),
-    //     colorB: this.material.uniforms.colorB.value.getStyle()
-    //   };
-    //   const update = () => {
-    //     this.material.uniforms.colorA.value.setStyle(settings.colorA);
-    //     this.material.uniforms.colorB.value.setStyle(settings.colorB);
-    //   };
-    //   folder.addColor(settings, 'colorA').onChange(update);
-    //   folder.addColor(settings, 'colorB').onChange(update);
-    //   folder.open();
-    // }
-
     document.body.appendChild(gl.canvas);
-    this.addEvents();
-    this.traverse('init', options);
-    return this;
-  }
-
-  addEvents() {
     document.addEventListener('mousedown', e => this.onTouchEvent(e, 'onTouchStart'));
     document.addEventListener('touchstart', e => this.onTouchEvent(e, 'onTouchStart'));
     document.addEventListener('mousemove', e => this.onTouchEvent(e, 'onTouchMove'));
@@ -94,6 +88,10 @@ class WebGL {
     document.addEventListener('mouseup', e => this.onTouchEvent(e, 'onTouchEnd'));
     document.addEventListener('touchend', e => this.onTouchEvent(e, 'onTouchEnd'));
     document.addEventListener('touchcancel', e => this.onTouchEvent(e, 'onTouchEnd'));
+
+    this.traverse('init', options);
+    this.start();
+    this.animateIn();
   }
 
   onTouchEvent(event, fn) {

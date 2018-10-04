@@ -1,6 +1,6 @@
 import { Component, h } from 'preact';
 import { toRegExp, instances } from './utils';
-import { isFunction } from '../utils';
+import { isFunction, isNumeric } from '../utils';
 
 function decode(value) {
 
@@ -19,12 +19,6 @@ function decode(value) {
   }
 
   return value;
-}
-
-function isNumeric(value) {
-  if (typeof value === 'number') return true;
-  if (/^0x[0-9a-f]+$/i.test(value)) return true;
-  return /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(e[-+]?\d+)?$/.test(value);
 }
 
 export default class Route extends Component {

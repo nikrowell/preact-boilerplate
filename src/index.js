@@ -23,8 +23,8 @@ function init() {
   );
 }
 
-const features = [];
 // https://polyfill.io/v2/docs/features/
+const features = [];
 // ('fetch' in window) || features.push('fetch');
 // ('Promise' in window) || features.push('Promise');
 // ('assign' in Object) || features.push('Object.assign');

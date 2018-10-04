@@ -2,7 +2,7 @@ import { h } from 'preact';
 
 const About = (props) => (
   <div>
-    <h3>ABOUT</h3>
+    <h1>About</h1>
     {debug(props)}
   </div>
 );

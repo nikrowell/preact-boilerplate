@@ -12,7 +12,6 @@ export default class Project extends Component {
   }
 
   animateIn(done, el) {
-    // Tween.fromTo ?
     Tween.to(el, 1, {
       autoAlpha: 1,
       x: 0,
