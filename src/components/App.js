@@ -4,6 +4,7 @@ import TransitionGroup from './TransitionGroup';
 import Preloader from './Preloader';
 import Header from './Header';
 import webgl from '../webgl';
+// import sound from '../sound';
 
 class App extends Component {
 

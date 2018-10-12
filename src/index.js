@@ -12,10 +12,11 @@ function init() {
   const data = JSON.parse(document.getElementById('data').textContent || '{}');
   console.log(data);
 
-  const assets = [{
-    url: 'https://picsum.photos/1024/512/?random',
-    type: 'image'
-  }];
+  // const assets = [{
+  //   url: 'https://picsum.photos/1024/512/?random',
+  //   type: 'image'
+  // }];
+  const assets = [];
 
   render(
     <Route render={props => <App {...props} assets={assets} routes={routes} />} />,

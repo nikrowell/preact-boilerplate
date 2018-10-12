@@ -1,4 +1,4 @@
-import { Renderer, Transform, Camera, Program, Mesh, Plane, Vec2, Vec4 } from 'ogl';
+import { Renderer, Transform, Camera, Program, Mesh, Plane, Raycast, Vec2, Vec4 } from 'ogl';
 import { isFunction } from '../utils';
 import Tween from 'gsap';
 
@@ -18,22 +18,33 @@ const program = new Program(gl, {
   precision highp int;
   uniform mat4 projectionMatrix;
   uniform mat4 modelViewMatrix;
+  uniform mat3 normalMatrix;
   attribute vec3 position;
+  attribute vec3 normal;
+  varying vec3 vNormal;
 
   void main() {
+    vNormal = normalize(normalMatrix * normal);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }`,
   fragment: `
   precision highp float;
   precision highp int;
   uniform float alpha;
+  uniform float hit;
+  varying vec3 vNormal;
 
   void main() {
-    gl_FragColor = vec4(1.0,0,0,alpha);
+    vec3 normal = normalize(vNormal);
+    float lighting = dot(normal, normalize(vec3(-0.3, 0.8, 0.6)));
+    vec3 color = mix(vec3(0.2, 0.8, 1.0), vec3(1.0, 0.2, 0.8), hit);
+    gl_FragColor = vec4(color + lighting * 0.15, alpha);
+
   }`,
   uniforms: {
     time: {value: 0},
-    alpha: {value: 0}
+    alpha: {value: 0},
+    hit: {value: 0}
   },
   transparent: true,
   cullFace: null
@@ -46,6 +57,8 @@ const plane = new Mesh(gl, {
 
 // plane.position.set(0, 0, 0);
 plane.setParent(scene);
+
+const raycast = new Raycast(gl);
 
 // if (window.dat) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
 //   // attach dat.gui stuff here as usual
@@ -94,6 +107,12 @@ class WebGL {
     this.animateIn();
   }
 
+  traverse(fn, ...args) {
+    this.scene.traverse(child => {
+      isFunction(child[fn]) && child[fn].apply(child, args);
+    });
+  }
+
   onTouchEvent(event, fn) {
 
     if (this.raf === null) return;
@@ -105,10 +124,17 @@ class WebGL {
       this.click.set(x, y);
     } else if(event.type === 'mousemove' || event.type === 'touchmove') {
       // TODO: store previous mouse position or projected position?
-      this.mouse.set(x, y, this.mouse.x, this.mouse.y);
+      // this.mouse.set(x, y, this.mouse.x, this.mouse.y);
       // const z =  2 * (x / this.width) - 1;
       // const w = -2 * (y / this.height) + 1;
       // this.mouse.set(x, y, z, w);
+      this.mouse.set(
+        2.0 * (x / this.width) - 1.0,
+        2.0 * (1.0 - y / this.height) - 1.0
+      );
+      raycast.castMouse(camera, this.mouse);
+      const hit = raycast.intersectBounds(plane);
+      program.uniforms.hit.value = hit.length;
     }
 
     this.traverse(fn, event, {
@@ -148,31 +174,6 @@ class WebGL {
     this.traverse('update', props, state, prevProps, prevState);
   }
 
-  render() {
-    renderer.render({scene, camera});
-  }
-
-  animate(t) {
-
-    if (this.raf === null) return;
-    requestAnimationFrame(this.animate);
-
-    const mouseX =  2 * (this.mouse.x / this.width) - 1;
-    const mouseY = -2 * (this.mouse.y / this.height) + 1;
-    plane.rotation.x += (-mouseY - plane.rotation.x) * 0.05;
-    plane.rotation.y += ( mouseX - plane.rotation.y) * 0.05;
-
-    const uniforms = {
-      resolution: this.resolution,
-      mouse: this.mouse,
-      click: this.click,
-      time: t * 0.001
-    };
-
-    this.traverse('animate', uniforms);
-    this.render();
-  }
-
   animateIn(options) {
 
     Tween.to(plane.program.uniforms.alpha, 2, {value: 1});
@@ -186,10 +187,27 @@ class WebGL {
     this.traverse('animateIn', options);
   }
 
-  traverse(fn, ...args) {
-    this.scene.traverse(child => {
-      isFunction(child[fn]) && child[fn].apply(child, args);
-    });
+  animate(t) {
+
+    if (this.raf === null) return;
+    requestAnimationFrame(this.animate);
+
+    plane.rotation.x += (  this.mouse.y - plane.rotation.x) * 0.05;
+    plane.rotation.y += ( -this.mouse.x - plane.rotation.y) * 0.05;
+
+    const uniforms = {
+      resolution: this.resolution,
+      mouse: this.mouse,
+      click: this.click,
+      time: t * 0.001
+    };
+
+    this.traverse('animate', uniforms);
+    this.render();
+  }
+
+  render() {
+    renderer.render({scene, camera});
   }
 }
 
