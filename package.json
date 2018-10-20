@@ -12,6 +12,7 @@
     "load-asset": "^1.2.0",
     "ogl": "0.0.9",
     "preact": "^8.3.1",
+    "unistore": "^3.1.0",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {

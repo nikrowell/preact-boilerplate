@@ -2,6 +2,28 @@ import { render, h } from 'preact';
 import { Route } from './router';
 import routes from './routes';
 import App from './components/App';
+import store from './store';
+
+const unsubscribe = store.subscribe(state => {
+  console.log('store changed', state);
+  unsubscribe();
+});
+
+store.setState({
+  name: 'Nik',
+  age: 38,
+  location: {
+    city: 'Buena Vista',
+    state: 'Colorado'
+  }
+});
+
+store.setState({
+  name: 'Angel',
+  age: store.getState().age - 6
+});
+
+console.log(store.getState());
 
 window.debug = (value, style = {}) => (
   window.DEBUG && <pre style={Object.assign({maxWidth:'100%',overflow:'scroll'},style)}>{JSON.stringify(value,null,2)}</pre>
