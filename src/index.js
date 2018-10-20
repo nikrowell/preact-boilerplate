@@ -2,6 +2,41 @@ import { render, h } from 'preact';
 import { Route } from './router';
 import routes from './routes';
 import App from './components/App';
+import store from './store';
+
+
+const unsubscribe = store.subscribe(state => {
+  if (state.name === 'Angel') return unsubscribe();
+  console.log('store changed:', state);
+});
+
+store.set({
+  name: 'Nik',
+  age: 38,
+  location: {
+    city: 'Minneapolis',
+    state: 'Minnesota',
+  }
+});
+
+store.set('location', {
+  city: 'Denver',
+  state: 'Colorado'
+});
+
+store.set('name', 'Angel');
+store.set('location.city', 'Buena Vista');
+store.set(state => ({age: state.age - 6}));
+
+console.log(store.get());
+console.log(store.get('location.state'), store.get().location.state);
+console.log(store.get('some.nonexistant.key', 'Nothing to see here'));
+console.log(`${store.get('name')} is ${store.get('age')} and in ${store.get('location.city')}, ${store.get('location.state')}`);
+console.log('------------------------------------------------------');
+
+// store.set(state => ({name: 'Angel'}), state => console.log('store changed!!!!', state));
+
+
 
 window.debug = (value, style = {}) => (
   window.DEBUG && <pre style={Object.assign({maxWidth:'100%',overflow:'scroll'},style)}>{JSON.stringify(value,null,2)}</pre>

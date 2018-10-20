@@ -24,7 +24,7 @@ const program = new Program(gl, {
   varying vec3 vNormal;
 
   void main() {
-    vNormal = normalize(normalMatrix * normal);
+    vNormal = normalMatrix * normal;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }`,
   fragment: `
