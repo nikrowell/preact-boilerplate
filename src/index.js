@@ -4,27 +4,6 @@ import routes from './routes';
 import App from './components/App';
 import store from './store';
 
-const unsubscribe = store.subscribe(state => {
-  console.log('store changed', state);
-  unsubscribe();
-});
-
-store.setState({
-  name: 'Nik',
-  age: 38,
-  location: {
-    city: 'Buena Vista',
-    state: 'Colorado'
-  }
-});
-
-store.setState({
-  name: 'Angel',
-  age: store.getState().age - 6
-});
-
-console.log(store.getState());
-
 window.debug = (value, style = {}) => (
   window.DEBUG && <pre style={Object.assign({maxWidth:'100%',overflow:'scroll'},style)}>{JSON.stringify(value,null,2)}</pre>
 );
@@ -34,11 +13,10 @@ function init() {
   const data = JSON.parse(document.getElementById('data').textContent || '{}');
   console.log(data);
 
-  // const assets = [{
-  //   url: 'https://picsum.photos/1024/512/?random',
-  //   type: 'image'
-  // }];
-  const assets = [];
+  const assets = [{
+    url: 'https://picsum.photos/1024/512/?random',
+    type: 'image'
+  }];
 
   render(
     <Route render={props => <App {...props} assets={assets} routes={routes} />} />,
