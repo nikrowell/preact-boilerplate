@@ -1,0 +1,3 @@
+# preact-boilerplate
+
+A [Preact](https://preactjs.com/) and WebGL boilerplate using [ogl](https://github.com/oframe/ogl), heavily inspired by [mattdesl](https://github.com/mattdesl)'s [threejs-app](https://github.com/mattdesl/threejs-app). Uses [parcel](https://parceljs.org/) with [node-sass](https://www.npmjs.com/package/node-sass) and includes a Preloader component using [load-asset](https://www.npmjs.com/package/load-asset), a TransitionGroup component based on [ReactTransitionGroupPlus](https://github.com/cheapsteak/react-transition-group-plus) (ported to work with Preact), a [polyfill.io](https://polyfill.io/) entry point and a simple router based on [this article](https://medium.freecodecamp.org/build-your-own-react-router-v4-a9815f7d5e42).

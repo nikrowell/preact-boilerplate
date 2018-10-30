@@ -54,27 +54,9 @@ const plane = new Mesh(gl, {
   program,
   geometry: new Plane(gl, 3)
 });
-
-// plane.position.set(0, 0, 0);
 plane.setParent(scene);
 
 const raycast = new Raycast(gl);
-
-// if (window.dat) { // assume it can be falsey, e.g. if we strip dat-gui out of bundle
-//   // attach dat.gui stuff here as usual
-//   const folder = gui.addFolder('honeycomb');
-//   const settings = {
-//     colorA: this.material.uniforms.colorA.value.getStyle(),
-//     colorB: this.material.uniforms.colorB.value.getStyle()
-//   };
-//   const update = () => {
-//     this.material.uniforms.colorA.value.setStyle(settings.colorA);
-//     this.material.uniforms.colorB.value.setStyle(settings.colorB);
-//   };
-//   folder.addColor(settings, 'colorA').onChange(update);
-//   folder.addColor(settings, 'colorB').onChange(update);
-//   folder.open();
-// }
 
 class WebGL {
 
