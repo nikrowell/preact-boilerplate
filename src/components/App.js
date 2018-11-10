@@ -9,6 +9,11 @@ import webgl from '../webgl';
 import { css } from 'emotion'
 const className = css`
   color: hotpink;
+  margin: 5px;
+  display: inline-block;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  padding: 10px;
 `
 
 const SomeComponent = ({ children }) => (
