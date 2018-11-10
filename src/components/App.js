@@ -6,6 +6,18 @@ import Header from './Header';
 import webgl from '../webgl';
 // import sound from '../sound';
 
+import { css } from 'emotion'
+const className = css`
+  color: hotpink;
+`
+
+const SomeComponent = ({ children }) => (
+  <div className={className}>
+    Some hotpink text.{children}
+  </div>
+);
+
+
 class App extends Component {
 
   constructor(props) {
@@ -88,6 +100,7 @@ class App extends Component {
     return (
       <div className="site">
         <Header />
+        <SomeComponent />
         <select value={this.state.transitionMode} onChange={e => this.setState({transitionMode: e.target.value})}>
           <option value="simultaneous">simultaneous</option>
           <option value="in-out">in-out</option>
