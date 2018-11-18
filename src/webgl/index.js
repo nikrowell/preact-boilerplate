@@ -3,12 +3,12 @@ import { isFunction } from '../utils';
 import Tween from 'gsap';
 
 const renderer = new Renderer({dpr: window.devicePixelRatio || 1});
-const scene = new Transform();
 
 const gl = renderer.gl;
 gl.clearColor(1, 1, 1, 1);
-gl.canvas.className = 'webgl';
+gl.canvas.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;';
 
+const scene = new Transform();
 const camera = new Camera(gl, {fov: 45});
 camera.position.z = 10;
 

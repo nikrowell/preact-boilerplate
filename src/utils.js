@@ -12,3 +12,24 @@ export function isNumeric(value) {
 export function isUndefined(value) {
   return typeof value === 'undefined';
 };
+
+// import webfont from 'webfontloader';
+// function loadFont(config) {
+//   return new Promise((resolve, reject) => {
+//     webfont.load({
+//       [config.source]: {families: config.families},
+//       classes: false,
+//       active: resolve
+//     });
+//   });
+// }
+
+export function loadScript(config) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = config.url;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.body.appendChild(script);
+  });
+};

@@ -56,9 +56,7 @@ export default class TransitionGroup extends Component {
     switch (this.props.mode) {
 
       case 'out-in':
-
         this.keysToLeave = [];
-
         if (keysToLeave.length) {
           keysToLeave.forEach(this.leave);
         } else {
@@ -68,10 +66,8 @@ export default class TransitionGroup extends Component {
         break;
 
       case 'in-out':
-
         this.keysToEnter = [];
         this.keysToLeave = [];
-
         if (keysToEnter.length) {
           Promise.all(keysToEnter.map(this.enter)).then(() => keysToLeave.forEach(this.leave));
         } else {

@@ -6,23 +6,6 @@ import Header from './Header';
 import webgl from '../webgl';
 // import sound from '../sound';
 
-import { css } from 'emotion'
-const className = css`
-  color: hotpink;
-  margin: 5px;
-  display: inline-block;
-  background-color: #f1f1f1;
-  border-radius: 5px;
-  padding: 10px;
-`
-
-const SomeComponent = ({ children }) => (
-  <div className={className}>
-    Some hotpink text.{children}
-  </div>
-);
-
-
 class App extends Component {
 
   constructor(props) {
@@ -57,8 +40,8 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.resize)
-    window.removeEventListener('orientationchange', this.resize)
+    window.removeEventListener('resize', this.resize);
+    window.removeEventListener('orientationchange', this.resize);
   }
 
   onLoaded(assets) {
@@ -104,18 +87,11 @@ class App extends Component {
 
     return (
       <div className="site">
-        <Header />
-        <SomeComponent />
-        <select value={this.state.transitionMode} onChange={e => this.setState({transitionMode: e.target.value})}>
-          <option value="simultaneous">simultaneous</option>
-          <option value="in-out">in-out</option>
-          <option value="out-in">out-in</option>
-        </select>
         <TransitionGroup component="main" className="site-main" mode={this.state.transitionMode}>
           {content}
         </TransitionGroup>
-        {debug(this.props, {color:'#64E',fontSize:17})}
-        {debug(this.state, {color:'#49A',fontSize:17})}
+        {debug(this.props, {color:'#64E',fontSize:15})}
+        {debug(this.state, {color:'#49A',fontSize:15})}
       </div>
     );
   }

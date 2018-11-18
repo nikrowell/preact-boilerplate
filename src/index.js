@@ -14,9 +14,31 @@ function init() {
   console.log(data);
 
   const assets = [{
-    url: 'https://picsum.photos/1024/512/?random',
+    url: 'https://picsum.photos/1200/800/?image=1032',
+    type: 'image'
+  }, {
+    url: 'https://picsum.photos/1200/800/?image=1037',
+    type: 'image'
+  }, {
+    url: 'https://picsum.photos/1200/800/?image=480',
+    type: 'image'
+  }, {
+    url: 'https://picsum.photos/1200/800/?random',
     type: 'image'
   }];
+
+  // assets.push({
+  //   type: loadFont,
+  //   source: 'google',
+  //   families: ['Montserrat:500,800', 'Roboto+Slab:300'],
+  // });
+
+  if (window.DEBUG) {
+    // assets.push({
+    //   type: loadScript,
+    //   url: 'https://unpkg.com/dat.gui'
+    // });
+  }
 
   render(
     <Route render={props => <App {...props} assets={assets} routes={routes} />} />,
