@@ -87,6 +87,11 @@ class App extends Component {
 
     return (
       <div className="site">
+        <select value={this.state.transitionMode} onChange={e => this.setState({transitionMode: e.target.value})}>
+          <option value="simultaneous">simultaneous</option>
+          <option value="in-out">in-out</option>
+          <option value="out-in">out-in</option>
+        </select>
         <TransitionGroup component="main" className="site-main" mode={this.state.transitionMode}>
           {content}
         </TransitionGroup>

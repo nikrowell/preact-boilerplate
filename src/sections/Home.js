@@ -31,11 +31,6 @@ export default class Home extends Component {
       <div>
         <Header />
         <h1>Home</h1>
-        <select value={this.state.transitionMode} onChange={e => this.setState({transitionMode: e.target.value})}>
-          <option value="simultaneous">simultaneous</option>
-          <option value="in-out">in-out</option>
-          <option value="out-in">out-in</option>
-        </select>
         {debug(this.props)}
       </div>
     );

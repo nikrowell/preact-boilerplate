@@ -47,7 +47,7 @@ export default class Preloder extends Component {
   componentDidMount() {
     const queue = this.props.assets;
     const onProgress = this.onProgress.bind(this);
-    const onComplete = this.props.onComplete;
+    const onComplete = this.onComplete.bind(this);
     load.all(queue, onProgress).then(onComplete);
   }
 
@@ -65,13 +65,20 @@ export default class Preloder extends Component {
   animateOut(done) {
     Tween.to(this.base, 1, {
       autoAlpha: 0,
-      delay: 1,
       onComplete: done
     });
   }
 
   onProgress(event) {
     this.setState({progress: event.progress});
+  }
+
+  onComplete(assets) {
+    const transitionEnd = (event) => {
+      this.base.removeEventListener('transitionend', transitionEnd);
+      this.props.onComplete(assets);
+    };
+    this.base.addEventListener('transitionend', transitionEnd);
   }
 
   render() {
