@@ -1,3 +1,4 @@
+import webfont from 'webfontloader';
 
 export function isFunction(value) {
   return typeof value === 'function';
@@ -13,16 +14,16 @@ export function isUndefined(value) {
   return typeof value === 'undefined';
 };
 
-// import webfont from 'webfontloader';
-// function loadFont(config) {
-//   return new Promise((resolve, reject) => {
-//     webfont.load({
-//       [config.source]: {families: config.families},
-//       classes: false,
-//       active: resolve
-//     });
-//   });
-// }
+export function loadFont(config) {
+  return new Promise((resolve, reject) => {
+    webfont.load({
+      [config.source]: {families: config.families},
+      classes: false,
+      active: resolve,
+      inactive: reject
+    });
+  });
+};
 
 export function loadScript(config) {
   return new Promise((resolve, reject) => {
@@ -30,6 +31,6 @@ export function loadScript(config) {
     script.src = config.url;
     script.onload = resolve;
     script.onerror = reject;
-    document.body.appendChild(script);
+    document.head.appendChild(script);
   });
 };

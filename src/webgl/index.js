@@ -64,6 +64,7 @@ class WebGL {
     this.width;
     this.height;
     // this.renderer;
+    // this.gl;
     // this.camera;
     this.scene = scene;
     this.resolution = new Vec2();
@@ -75,13 +76,21 @@ class WebGL {
 
   init(options) {
 
+    if (window.DEBUG && window.dat) {
+      // const config = {age: 45, color: '#FF0000'};
+      // const gui = new dat.GUI();
+      // gui.domElement.parentElement.style.zIndex = 1000;
+      // gui.add(config, 'age', 0, 100);
+      // gui.addColor(config, 'color');
+    }
+
     document.body.appendChild(gl.canvas);
-    document.addEventListener('mousedown', e => this.onTouchEvent(e, 'onTouchStart'));
-    document.addEventListener('touchstart', e => this.onTouchEvent(e, 'onTouchStart'));
-    document.addEventListener('mousemove', e => this.onTouchEvent(e, 'onTouchMove'));
-    document.addEventListener('touchmove', e => this.onTouchEvent(e, 'onTouchMove'));
-    document.addEventListener('mouseup', e => this.onTouchEvent(e, 'onTouchEnd'));
-    document.addEventListener('touchend', e => this.onTouchEvent(e, 'onTouchEnd'));
+    document.addEventListener('mousedown',   e => this.onTouchEvent(e, 'onTouchStart'));
+    document.addEventListener('touchstart',  e => this.onTouchEvent(e, 'onTouchStart'));
+    document.addEventListener('mousemove',   e => this.onTouchEvent(e, 'onTouchMove'));
+    document.addEventListener('touchmove',   e => this.onTouchEvent(e, 'onTouchMove'));
+    document.addEventListener('mouseup',     e => this.onTouchEvent(e, 'onTouchEnd'));
+    document.addEventListener('touchend',    e => this.onTouchEvent(e, 'onTouchEnd'));
     document.addEventListener('touchcancel', e => this.onTouchEvent(e, 'onTouchEnd'));
 
     this.traverse('init', options);

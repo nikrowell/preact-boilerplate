@@ -13,8 +13,8 @@ const className = css`
   top: 0;
   width: 100%;
   height: 100%;
+  font-size: 6rem;
   font-family: 'Playfair Display', serif;
-	font-size: 6rem;
 	font-weight: 700;
   text-transform: lowercase;
   color: rgba(22,22,22,1);
@@ -45,10 +45,10 @@ export default class Preloder extends Component {
   }
 
   componentDidMount() {
-    const queue = this.props.assets;
+    const assets = this.props.assets;
     const onProgress = this.onProgress.bind(this);
     const onComplete = this.onComplete.bind(this);
-    load.all(queue, onProgress).then(onComplete);
+    load.all(assets, onProgress).then(onComplete);
   }
 
   animateIn(done) {

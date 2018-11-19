@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "emotion": "^9.2.12",
-    "glslify": "^7.0.0",
     "gsap": "^2.0.2",
     "load-asset": "^1.2.0",
     "ogl": "0.0.9",

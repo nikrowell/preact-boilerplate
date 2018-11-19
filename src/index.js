@@ -1,11 +1,12 @@
 import { render, h } from 'preact';
 import { Route } from './router';
+import { loadFont, loadScript } from './utils';
 import routes from './routes';
 import App from './components/App';
 import store from './store';
 
 window.debug = (value, style = {}) => (
-  window.DEBUG && <pre style={Object.assign({maxWidth:'100%',overflow:'scroll'},style)}>{JSON.stringify(value,null,2)}</pre>
+  window.DEBUG && <pre style={{maxWidth:'100%',overflow:'scroll', ...style}}>{JSON.stringify(value,null,2)}</pre>
 );
 
 function init() {
@@ -27,17 +28,17 @@ function init() {
     type: 'image'
   }];
 
-  // assets.push({
-  //   type: loadFont,
-  //   source: 'google',
-  //   families: ['Montserrat:500,800', 'Roboto+Slab:300'],
-  // });
+  assets.push({
+    type: loadFont,
+    source: 'google',
+    families: ['Montserrat:500,800', 'Roboto+Slab:300'],
+  });
 
   if (window.DEBUG) {
-    // assets.push({
-    //   type: loadScript,
-    //   url: 'https://unpkg.com/dat.gui'
-    // });
+    assets.push({
+      type: loadScript,
+      url: 'https://unpkg.com/dat.gui'
+    });
   }
 
   render(
@@ -48,11 +49,11 @@ function init() {
 
 // https://polyfill.io/v2/docs/features/
 const features = [];
-// ('fetch' in window) || features.push('fetch');
-// ('Promise' in window) || features.push('Promise');
-// ('assign' in Object) || features.push('Object.assign');
-// ('from' in Array) || features.push('Array.from');
-// ('find' in Array.prototype) || features.push('Array.prototype.find');
+// ('fetch' in window)             || features.push('fetch');
+// ('Promise' in window)           || features.push('Promise');
+// ('assign' in Object)            || features.push('Object.assign');
+// ('from' in Array)               || features.push('Array.from');
+// ('find' in Array.prototype)     || features.push('Array.prototype.find');
 // ('includes' in Array.prototype) || features.push('Array.prototype.includes');
 
 if(features.length) {

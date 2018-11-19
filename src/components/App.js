@@ -72,7 +72,7 @@ class App extends Component {
       return match(route.path);
     });
 
-    return matches.map(({ component:Section, path, ...props }) => (
+    return matches.map(({ component: Section, path, ...props }) => (
       <Section
         key={path}
         {...props}
@@ -95,8 +95,8 @@ class App extends Component {
         <TransitionGroup component="main" className="site-main" mode={this.state.transitionMode}>
           {content}
         </TransitionGroup>
-        {debug(this.props, {color:'#64E',fontSize:15})}
-        {debug(this.state, {color:'#49A',fontSize:15})}
+        {debug(this.props, {color:'#64E'})}
+        {debug(this.state, {color:'#49A'})}
       </div>
     );
   }
