@@ -25,11 +25,11 @@ const className = css`
     position: absolute;
     overflow: hidden;
     transform: translateX(-100%);
-    transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1);
   }
   .progress-text {
     transform: translateX(100%);
-    transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1);
   }
   .static-text {
     outline: #F00 1px dotted;
@@ -44,10 +44,11 @@ export default class Preloder extends Component {
     this.state = {progress: 0};
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const queue = this.props.assets;
-    const assets = await load.all(queue, this.onProgress.bind(this));
-    this.props.onLoaded(assets);
+    const onProgress = this.onProgress.bind(this);
+    const onComplete = this.props.onComplete;
+    load.all(queue, onProgress).then(onComplete);
   }
 
   animateIn(done) {
@@ -70,19 +71,17 @@ export default class Preloder extends Component {
   }
 
   onProgress(event) {
-    console.log(event);
     this.setState({progress: event.progress});
   }
 
   render() {
 
     const translate = (1 - this.state.progress) * 100;
-    const style = {transform: `translateX(${translate})`};
 
     return (
       <div className={className}>
-        <div class="mask" aria-hidden="true" style={style}>
-          <div class="progress-text" style={style}>Preloader</div>
+        <div class="mask" style={{transform: `translateX(${translate * -1}%)`}} aria-hidden="true">
+          <div class="progress-text" style={{transform: `translateX(${translate}%)`}}>Preloader</div>
         </div>
         <div class="static-text">Preloader</div>
       </div>

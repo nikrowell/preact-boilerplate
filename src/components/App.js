@@ -62,7 +62,7 @@ class App extends Component {
         width={this.state.width}
         height={this.state.height}
         assets={this.props.assets}
-        onLoaded={this.onLoaded} />
+        onComplete={this.onLoaded} />
     );
   }
 
