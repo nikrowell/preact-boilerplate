@@ -72,6 +72,7 @@ class WebGL {
     this.click = new Vec2();
     this.raf = null;
     this.animate = this.animate.bind(this);
+    this.resize = this.resize.bind(this);
   }
 
   init(options) {
@@ -83,6 +84,10 @@ class WebGL {
       // gui.add(config, 'age', 0, 100);
       // gui.addColor(config, 'color');
     }
+
+    window.addEventListener('resize', this.resize);
+    window.addEventListener('orientationchange', this.resize);
+    this.resize();
 
     document.body.appendChild(gl.canvas);
     document.addEventListener('mousedown',   e => this.onTouchEvent(e, 'onTouchStart'));
@@ -147,7 +152,10 @@ class WebGL {
     return this;
   }
 
-  resize(width, height) {
+  resize() {
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
     if (width !== this.width || height !== this.height) {
       renderer.setSize(width, height);

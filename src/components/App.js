@@ -1,39 +1,59 @@
 import { Component, h } from 'preact';
+import { css } from 'emotion';
 import { match } from '../router';
 import TransitionGroup from './TransitionGroup';
 import Preloader from './Preloader';
 import Header from './Header';
 import webgl from '../webgl';
+
+// import { connect } from '../store';
 // import sound from '../sound';
 
-class App extends Component {
+class Tester extends Component {
+
+  componentDidMount() {
+    console.log('Tester.componentDidMount');
+  }
+
+  animateIn(done) {
+    console.log('Tester.animateIn', this.base);
+    done();
+  }
+
+  render() {
+    return (
+      <header>
+        <Header />
+        <select style={{width:150}} value={this.props.transitionMode} onChange={e => this.props.onChange(e.target.value)}>
+          <option value="sync">sync</option>
+          <option value="in-out">in-out</option>
+          <option value="out-in">out-in</option>
+        </select>
+      </header>
+    );
+  }
+}
+
+const className = css`
+  position: relative;
+  z-index: 1;
+`;
+
+export default class App extends Component {
 
   constructor(props) {
     super(props);
     this.onLoaded = this.onLoaded.bind(this);
-    this.onResize = this.onResize.bind(this);
 
     this.state = {
-      width: null,
-      height: null,
       assets: null,
-      transitionMode: 'simultaneous'
+      transition: 'out-in'
     };
   }
 
-  componentDidMount() {
-    window.addEventListener('resize', this.onResize);
-    window.addEventListener('orientationchange', this.onResize);
-    this.onResize();
-  }
-
   componentDidUpdate(prevProps, prevState) {
-
-    const { width, height, assets } = this.state;
-
-    webgl.resize(width, height);
+    const assets = this.state.assets;
     webgl.update(this.props, this.state, prevProps, prevState);
-
     if (assets && assets !== prevState.assets) {
       webgl.init({assets});
     }
@@ -48,22 +68,8 @@ class App extends Component {
     this.setState({assets});
   }
 
-  onResize() {
-    this.setState({
-      width: window.innerWidth,
-      height: window.innerHeight
-    });
-  }
-
   renderPreloader() {
-    return (
-      <Preloader
-        key="preloader"
-        width={this.state.width}
-        height={this.state.height}
-        assets={this.props.assets}
-        onComplete={this.onLoaded} />
-    );
+    return <Preloader key="preloader" assets={this.props.assets} onComplete={this.onLoaded} />
   }
 
   renderRoute() {
@@ -73,33 +79,46 @@ class App extends Component {
     });
 
     return matches.map(({ component: Section, path, ...props }) => (
-      <Section
-        key={path}
-        {...props}
-        {...this.props}
-        {...this.state} />
+      <Section key={path} {...props} {...this.props} {...this.state} />
     ));
   }
 
   render() {
 
-    const content = this.state.assets === null ? this.renderPreloader() : this.renderRoute();
+    const content = this.state.assets === null
+      ? this.renderPreloader()
+      : this.renderRoute();
+
+    // const routes = this.props.routes;
+    // routes.reduce((matches, route) => {
+    //   const req = match(route.path);
+    //   console.log('req:', req);
+    //   return matches;
+    // }, []);
+
+    // const content = this.props.routes
+    //   .reduce((matches, route) => {
+    //     const req = matchPath(window.location.pathname, {path: route.path, exact: true});
+    //     console.log(req)
+    //     if (req) {
+    //       console.log('FOUND ONE!');
+    //       matches.push({route, req});
+    //     }
+    //     return matches;
+    //   }, [])
+    //   .map(({route, req}) => (
+    //     <route.Component key={route.key} {...req} />
+    //   ));
 
     return (
-      <div className="site">
-        <select value={this.state.transitionMode} onChange={e => this.setState({transitionMode: e.target.value})}>
-          <option value="simultaneous">simultaneous</option>
-          <option value="in-out">in-out</option>
-          <option value="out-in">out-in</option>
-        </select>
-        <TransitionGroup component="main" className="site-main" mode={this.state.transitionMode}>
+      <div className={className}>
+        <TransitionGroup component={props => props.children[0]}>
+          {this.state.assets ? <Tester transitionMode={this.state.transition} onChange={transition => this.setState({transition})} /> : null}
+        </TransitionGroup>
+        <TransitionGroup component="main" className="site-main" mode={this.state.transition}>
           {content}
         </TransitionGroup>
-        {debug(this.props, {color:'#64E'})}
-        {debug(this.state, {color:'#49A'})}
       </div>
     );
   }
 }
-
-export default App;

@@ -7,7 +7,7 @@ const className = css`
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
+  position: fixed;
   z-index: 100;
   left: 0;
   top: 0;
@@ -74,6 +74,7 @@ export default class Preloder extends Component {
   }
 
   onComplete(assets) {
+    console.log('onComplete', assets);
     const transitionEnd = (event) => {
       this.base.removeEventListener('transitionend', transitionEnd);
       this.props.onComplete(assets);

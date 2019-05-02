@@ -3,11 +3,13 @@ import { Route } from './router';
 import { loadFont, loadScript } from './utils';
 import routes from './routes';
 import App from './components/App';
-import store from './store';
+// import Preloader from './components/Preloader';
+// import TransitionGroup from './components/TransitionGroup';
+// import { Provider, store } from './store';
 
-window.debug = (value, style = {}) => (
-  window.DEBUG && <pre style={{maxWidth:'100%',overflow:'scroll', ...style}}>{JSON.stringify(value,null,2)}</pre>
-);
+window.debug = process.env.NODE_ENV === 'development' ? (vars, style = {}) => (
+  <pre style={{maxWidth:'100%',overflow:'scroll', ...style}}>{JSON.stringify(vars, null, 2)}</pre>
+) : vars => null;
 
 function init() {
 
@@ -28,18 +30,18 @@ function init() {
     type: 'image'
   }];
 
-  assets.push({
-    type: loadFont,
-    source: 'google',
-    families: ['Montserrat:500,800', 'Roboto+Slab:300'],
-  });
+  // assets.push({
+  //   type: loadFont,
+  //   source: 'google',
+  //   families: ['Montserrat:500,800', 'Roboto+Slab:300'],
+  // });
 
-  if (window.DEBUG) {
-    assets.push({
-      type: loadScript,
-      url: 'https://unpkg.com/dat.gui'
-    });
-  }
+  // if (process.env.NODE_ENV) {
+  //   assets.push({
+  //     type: loadScript,
+  //     url: 'https://unpkg.com/dat.gui'
+  //   });
+  // }
 
   render(
     <Route render={props => <App {...props} assets={assets} routes={routes} />} />,

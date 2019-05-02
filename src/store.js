@@ -1,3 +1,13 @@
 import createStore from 'unistore';
-const instance = createStore();
-export default instance;
+import { Provider, connect } from 'unistore/preact';
+
+const store = createStore({
+  assets: null
+});
+
+// const actions = store => ({
+//   setAssets: (state, assets) => ({assets})
+// });
+
+export default store;
+export { Provider, connect, store };

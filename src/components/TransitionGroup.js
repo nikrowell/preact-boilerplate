@@ -86,7 +86,7 @@ export default class TransitionGroup extends Component {
 
   getChildMapping(children) {
     return children.reduce((result, child) => {
-      result[child.key] = child;
+      child && (result[child.key] = child);
       return result;
     }, {});
   }
