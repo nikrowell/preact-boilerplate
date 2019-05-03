@@ -2,7 +2,8 @@ import createStore from 'unistore';
 import { Provider, connect } from 'unistore/preact';
 
 const store = createStore({
-  assets: null
+  assets: null,
+  loading: false
 });
 
 // const actions = store => ({

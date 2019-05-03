@@ -14,7 +14,7 @@ export default class Link extends Component {
   }
 
   render() {
-    const { to, children } = this.props;
-    return <a href={to} onClick={this.onClick}>{children}</a>;
+    const { to, children, ...props } = this.props;
+    return <a href={to} onClick={this.onClick} {...props}>{children}</a>;
   }
 }
