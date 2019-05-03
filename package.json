@@ -4,8 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "start": "rm -rf .cache/ && parcel index.html --open",
-    "build": "rm -rf dist/* && parcel build index.html && npm run size",
-    "size": "echo $(gzip -c dist/main.*.js | wc -c)"
+    "build": "rm -rf dist/* && parcel build index.html"
   },
   "dependencies": {
     "emotion": "^9.2.12",
@@ -13,8 +12,8 @@
     "howler": "^2.1.2",
     "load-asset": "^1.2.0",
     "ogl": "^0.0.12",
-    "preact": "^8.3.1",
-    "unistore": "^3.1.0",
+    "preact": "^8.4.2",
+    "unistore": "^3.4.1",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
