@@ -10,7 +10,7 @@ gl.canvas.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%
 
 const scene = new Transform();
 const camera = new Camera(gl, {fov: 45});
-camera.position.z = 10;
+camera.position.z = 3;
 
 const program = new Program(gl, {
   vertex: `
@@ -52,7 +52,7 @@ const program = new Program(gl, {
 
 const plane = new Mesh(gl, {
   program,
-  geometry: new Plane(gl, 3)
+  geometry: new Plane(gl, 1)
 });
 plane.setParent(scene);
 

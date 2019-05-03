@@ -3,8 +3,6 @@ import { Route } from './router';
 import { loadFont, loadScript } from './utils';
 import routes from './routes';
 import App from './components/App';
-// import Preloader from './components/Preloader';
-// import TransitionGroup from './components/TransitionGroup';
 // import { Provider, store } from './store';
 
 window.debug = process.env.NODE_ENV === 'development' ? (vars, style = {}) => (
