@@ -8,19 +8,19 @@
   },
   "dependencies": {
     "emotion": "^9.2.12",
-    "gsap": "^2.1.2",
-    "howler": "^2.1.2",
+    "gsap": "^2.1.3",
+    "howler": "^2.2.1",
     "load-asset": "^1.2.0",
     "ogl": "^0.0.12",
-    "preact": "^8.4.2",
-    "unistore": "^3.4.1",
+    "preact": "^8.5.3",
+    "unistore": "^3.5.2",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.4",
-    "@babel/plugin-transform-react-jsx": "^7.3.0",
-    "@babel/preset-env": "^7.4.4",
-    "parcel-bundler": "^1.12.3",
-    "sass": "^1.19.0"
+    "@babel/core": "^7.13.16",
+    "@babel/plugin-transform-react-jsx": "^7.13.12",
+    "@babel/preset-env": "^7.13.15",
+    "parcel-bundler": "^1.12.5",
+    "sass": "^1.32.11"
   }
 }
