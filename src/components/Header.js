@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { css } from 'emotion';
+import { css } from '@emotion/css';
 import { Link } from '../router';
 
 const logo = css`

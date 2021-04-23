@@ -1,5 +1,5 @@
 import { Component, h } from 'preact';
-import { css } from 'emotion';
+import { css } from '@emotion/css';
 import { match } from '../router';
 import TransitionGroup from './TransitionGroup';
 import Preloader from './Preloader';

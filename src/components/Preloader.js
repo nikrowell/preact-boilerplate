@@ -1,6 +1,6 @@
 import { Component, h } from 'preact';
-import { css } from 'emotion';
-import Tween from 'gsap';
+import { css } from '@emotion/css';
+import gsap from 'gsap';
 import load from 'load-asset';
 
 const className = css`
@@ -52,7 +52,8 @@ export default class Preloder extends Component {
   }
 
   animateIn(done) {
-    Tween.fromTo(this.base, 0.5, {
+    gsap.fromTo(this.base, {
+      duration: 0.5,
       autoAlpha: 0,
       y: 20
     }, {
@@ -63,7 +64,8 @@ export default class Preloder extends Component {
   }
 
   animateOut(done) {
-    Tween.to(this.base, 1, {
+    gsap.to(this.base, {
+      duration: 1,
       autoAlpha: 0,
       onComplete: done
     });

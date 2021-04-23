@@ -1,6 +1,6 @@
 import { Renderer, Transform, Camera, Program, Mesh, Plane, Raycast, Vec2, Vec4 } from 'ogl';
 import { isFunction } from '../utils';
-import Tween from 'gsap';
+import gsap from 'gsap';
 
 const renderer = new Renderer({dpr: window.devicePixelRatio || 1});
 
@@ -175,12 +175,17 @@ class WebGL {
 
   animateIn(options) {
 
-    Tween.to(plane.program.uniforms.alpha, 2, {value: 1});
-    Tween.fromTo(plane.position, 2, {
+    gsap.to(plane.program.uniforms.alpha, {
+      duration: 2,
+      value: 1
+    });
+
+    gsap.fromTo(plane.position, {
+      duration: 1,
       y: -2
     }, {
       y: 0,
-      ease: Expo.easeOut
+      ease: 'expo.out'
     });
 
     this.traverse('animateIn', options);

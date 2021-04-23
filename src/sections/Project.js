@@ -1,5 +1,5 @@
 import { Component, h } from 'preact';
-import Tween from 'gsap';
+import gsap from 'gsap';
 
 export default class Project extends Component {
 
@@ -8,23 +8,25 @@ export default class Project extends Component {
   }
 
   componentDidMount() {
-    Tween.set(this.base, {autoAlpha: 0, x: -100});
+    gsap.set(this.base, {autoAlpha: 0, x: -100});
   }
 
   animateIn(done, el) {
-    Tween.to(el, 1, {
+    gsap.to(el, {
+      duration: 1,
       autoAlpha: 1,
       x: 0,
-      ease: Elastic.easeOut.config(1, 0.3),
+      ease: 'elastic.out',
       onComplete: done
     });
   }
 
   animateOut(done, el) {
-    Tween.to(el, 1, {
+    gsap.to(el, {
+      duration: 1,
       autoAlpha: 0,
       x: -100,
-      ease: Expo.easeIn,
+      ease: 'expo.out',
       onComplete: done
     });
   }

@@ -1,4 +1,4 @@
-import { Component, cloneElement, h } from 'preact';
+import { Component, cloneElement, toChildArray, h } from 'preact';
 import { isFunction } from '../utils';
 
 export default class TransitionGroup extends Component {
@@ -85,7 +85,7 @@ export default class TransitionGroup extends Component {
   }
 
   getChildMapping(children) {
-    return children.reduce((result, child) => {
+    return toChildArray(children).reduce((result, child) => {
       child && (result[child.key] = child);
       return result;
     }, {});

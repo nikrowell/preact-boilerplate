@@ -1,16 +1,17 @@
 import { Component, h } from 'preact';
-import Tween from 'gsap';
+import gsap from 'gsap';
 
 export default class Home extends Component {
 
   componentDidMount() {
-    Tween.set(this.base, {autoAlpha: 0});
+    gsap.set(this.base, {autoAlpha: 0});
   }
 
   animateIn(done) {
     console.log('Home.animateIn');
     // done();
-    Tween.to(this.base, 1, {
+    gsap.to(this.base, {
+      duration: 1,
       autoAlpha: 1,
       onComplete: done
     });
@@ -19,7 +20,8 @@ export default class Home extends Component {
   animateOut(done) {
     console.log('Home.animateOut');
     // done();
-    Tween.to(this.base, 1, {
+    gsap.to(this.base, {
+      duration: 1,
       autoAlpha: 0,
       onComplete: done
     });
