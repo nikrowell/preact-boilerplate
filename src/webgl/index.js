@@ -13,39 +13,41 @@ const camera = new Camera(gl, {fov: 45});
 camera.position.z = 3;
 
 const program = new Program(gl, {
-  vertex: `
-  precision highp float;
-  precision highp int;
-  uniform mat4 projectionMatrix;
-  uniform mat4 modelViewMatrix;
-  uniform mat3 normalMatrix;
-  attribute vec3 position;
-  attribute vec3 normal;
-  varying vec3 vNormal;
-
-  void main() {
-    vNormal = normalMatrix * normal;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }`,
-  fragment: `
-  precision highp float;
-  precision highp int;
-  uniform float alpha;
-  uniform float hit;
-  varying vec3 vNormal;
-
-  void main() {
-    vec3 normal = normalize(vNormal);
-    float lighting = dot(normal, normalize(vec3(-0.3, 0.8, 0.6)));
-    vec3 color = mix(vec3(0.2, 0.8, 1.0), vec3(1.0, 0.2, 0.8), hit);
-    gl_FragColor = vec4(color + lighting * 0.15, alpha);
-
-  }`,
   uniforms: {
     time: {value: 0},
     alpha: {value: 0},
     hit: {value: 0}
   },
+
+  vertex: /* glsl */`
+    precision highp float;
+    precision highp int;
+    uniform mat4 projectionMatrix;
+    uniform mat4 modelViewMatrix;
+    uniform mat3 normalMatrix;
+    attribute vec3 position;
+    attribute vec3 normal;
+    varying vec3 vNormal;
+
+    void main() {
+      vNormal = normalMatrix * normal;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }`,
+
+  fragment: /* glsl */`
+    precision highp float;
+    precision highp int;
+    uniform float alpha;
+    uniform float hit;
+    varying vec3 vNormal;
+
+    void main() {
+      vec3 normal = normalize(vNormal);
+      float lighting = dot(normal, normalize(vec3(-0.3, 0.8, 0.6)));
+      vec3 color = mix(vec3(0.2, 0.8, 1.0), vec3(1.0, 0.2, 0.8), hit);
+      gl_FragColor = vec4(color + lighting * 0.15, alpha);
+    }`,
+
   transparent: true,
   cullFace: null
 });
