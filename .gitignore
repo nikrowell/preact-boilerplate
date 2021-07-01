@@ -2,5 +2,6 @@ _/
 .DS_Store
 .cache
 *.map
+package-lock.json
 dist/
 node_modules/
