@@ -9,10 +9,6 @@ import webgl from '../webgl';
 
 class Tester extends Component {
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
   animateIn(done) {
     console.log('Tester.animateIn', this.base);
     done();
