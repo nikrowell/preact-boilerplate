@@ -121,7 +121,7 @@ class WebGL {
     if (event.type === 'mousedown' || event.type === 'touchstart') {
       this.click.set(x, y);
     } else if(event.type === 'mousemove' || event.type === 'touchmove') {
-      // TODO: store previous mouse position or projected position?
+      // TODO: save previous mouse position or projected position?
       // this.mouse.set(x, y, this.mouse.x, this.mouse.y);
       // const z =  2 * (x / this.width) - 1;
       // const w = -2 * (y / this.height) + 1;

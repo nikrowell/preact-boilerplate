@@ -1,9 +1,8 @@
 import { render, h } from 'preact';
 import { Route } from './router';
-import { loadFont, loadScript } from './utils';
+// import { loadFont, loadScript } from './utils';
 import routes from './routes';
 import App from './components/App';
-// import { Provider, store } from './store';
 
 window.debug = process.env.NODE_ENV === 'development' ? (vars, style = {}) => (
   <pre style={{maxWidth:'100%',overflow:'scroll', ...style}}>{JSON.stringify(vars, null, 2)}</pre>

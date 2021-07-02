@@ -5,19 +5,9 @@ import TransitionGroup from './TransitionGroup';
 import Preloader from './Preloader';
 import Header from './Header';
 import webgl from '../webgl';
-import store from '../store';
-
-// import { connect } from '../store';
 // import sound from '../sound';
 
 class Tester extends Component {
-
-  componentDidMount() {
-    console.log('Tester.componentDidMount');
-    this.unsubscribe = store.subscribe(state => {
-      console.log('store change!', state);
-    });
-  }
 
   componentWillUnmount() {
     this.unsubscribe();
